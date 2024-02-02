@@ -1,3 +1,4 @@
+import 'package:flash_card_quiz_app/pages/home.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatelessWidget {
@@ -6,36 +7,52 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(0, 192, 255, 1.0),
+      backgroundColor: const Color.fromRGBO(0, 192, 255, 1.0),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
               'Welcome to Flashcards & Quizzes App',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
             ),
-            Image(
+            const Image(
               image: AssetImage('assets/images/flashcard_logo.png'),
-              width: 150,
-              height: 150,
+              width: 300,
+              height: 300,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to Flashcards Page
-                Navigator.pushNamed(context, '/flashcards');
-              },
-              child: const Text('Flashcards'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to Quizzes Page
-                Navigator.pushNamed(context, '/quizzes');
-              },
-              child: const Text('Quizzes'),
+            SizedBox(
+              width: 296,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomePage()),
+                  );
+                },
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.blue),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+                child: const Text(
+                  'Let\'s Learn',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
