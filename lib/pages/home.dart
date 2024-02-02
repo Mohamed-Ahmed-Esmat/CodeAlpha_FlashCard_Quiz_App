@@ -79,37 +79,58 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
             child: filteredCards.isEmpty
-                ? Center(
+                ? const Center(
                     child: Text(
-                      'Search not found',
+                      'Card don\'t exist',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   )
-                : ListView.builder(
-                    itemCount: filteredCards.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        elevation: 10,
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            filteredCards[index].title,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListView.builder(
+                      itemCount: filteredCards.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 10,
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Text(
+                                  filteredCards[index].title,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () {
+                                    // Delete the card
+                                    setState(() {
+                                      cards.remove(filteredCards[index]);
+                                      filterCards('');
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        // You can add more details or actions for each card here
-                      );
-                    },
+                          // You can add more details or actions for each card here
+                        );
+                      },
+                    ),
                   ),
           ),
         ],
