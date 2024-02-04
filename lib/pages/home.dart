@@ -1,4 +1,5 @@
 import 'package:flash_card_quiz_app/classes/FlashyCard.dart';
+import 'package:flash_card_quiz_app/pages/card.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -93,41 +94,52 @@ class _HomePageState extends State<HomePage> {
                     child: ListView.builder(
                       itemCount: filteredCards.length,
                       itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 10,
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Text(
-                                  filteredCards[index].title,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                        return GestureDetector(
+                          child: Card(
+                            elevation: 10,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    filteredCards[index].title,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const Spacer(),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
+                                  const Spacer(),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      // Delete the card
+                                      setState(() {
+                                        cards.remove(filteredCards[index]);
+                                        filterCards('');
+                                      });
+                                    },
                                   ),
-                                  onPressed: () {
-                                    // Delete the card
-                                    setState(() {
-                                      cards.remove(filteredCards[index]);
-                                      filterCards('');
-                                    });
-                                  },
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                          // You can add more details or actions for each card here
+                          onTap: () {
+                            // Navigate to the CardPage when a card is clicked
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    CardPage(card: filteredCards[index]),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
