@@ -115,6 +115,16 @@ class _HomePageState extends State<HomePage> {
                                   const Spacer(),
                                   IconButton(
                                     icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.blue,
+                                    ),
+                                    onPressed: () {
+                                      _showEditCardDialog(
+                                          context, filteredCards[index]);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
                                       Icons.delete,
                                       color: Colors.red,
                                     ),
@@ -131,12 +141,12 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           onTap: () {
-                            // Navigate to the CardPage when a card is clicked
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    CardPage(card: filteredCards[index]),
+                                builder: (context) => CardPage(
+                                  card: filteredCards[index],
+                                ),
                               ),
                             );
                           },
@@ -146,6 +156,13 @@ class _HomePageState extends State<HomePage> {
                   ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showAddCardDialog(context);
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
     );
   }
@@ -158,5 +175,172 @@ class _HomePageState extends State<HomePage> {
               (card) => card.title.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
+  }
+
+  void _showAddCardDialog(BuildContext context) {
+    TextEditingController titleController = TextEditingController();
+    TextEditingController questionsController = TextEditingController();
+    TextEditingController answersController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Add New Card'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(labelText: 'Title'),
+              ),
+              TextField(
+                controller: questionsController,
+                decoration:
+                    InputDecoration(labelText: 'Questions (comma-separated)'),
+              ),
+              TextField(
+                controller: answersController,
+                decoration:
+                    InputDecoration(labelText: 'Answers (comma-separated)'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _addNewCard(titleController.text, questionsController.text,
+                    answersController.text);
+                Navigator.pop(context);
+              },
+              child: Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addNewCard(String title, String questions, String answers) {
+    if (title.isNotEmpty && questions.isNotEmpty && answers.isNotEmpty) {
+      List<String> questionList = questions.split(',');
+      List<String> answerList = answers.split(',');
+
+      // Validate that the number of answers corresponds to the number of questions
+      if (questionList.length == answerList.length) {
+        setState(() {
+          cards.add(FlashyCard(
+              title: title, questions: questionList, answers: answerList));
+          filterCards(_searchController.text);
+        });
+      } else {
+        _showErrorDialog(
+            'Number of answers should correspond to the number of questions.');
+      }
+    } else {
+      _showErrorDialog('Please fill in all fields.');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditCardDialog(BuildContext context, FlashyCard card) {
+    TextEditingController titleController =
+        TextEditingController(text: card.title);
+    TextEditingController questionsController =
+        TextEditingController(text: card.questions.join(', '));
+    TextEditingController answersController =
+        TextEditingController(text: card.answers.join(', '));
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Card'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(labelText: 'Title'),
+              ),
+              TextField(
+                controller: questionsController,
+                decoration:
+                    InputDecoration(labelText: 'Questions (comma-separated)'),
+              ),
+              TextField(
+                controller: answersController,
+                decoration:
+                    InputDecoration(labelText: 'Answers (comma-separated)'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _editCard(card, titleController.text, questionsController.text,
+                    answersController.text);
+                Navigator.pop(context);
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _editCard(
+      FlashyCard card, String title, String questions, String answers) {
+    if (title.isNotEmpty && questions.isNotEmpty && answers.isNotEmpty) {
+      List<String> questionList = questions.split(',');
+      List<String> answerList = answers.split(',');
+
+      // Validate that the number of answers corresponds to the number of questions
+      if (questionList.length == answerList.length) {
+        setState(() {
+          card.title = title;
+          card.questions = questionList;
+          card.answers = answerList;
+          filterCards(_searchController.text);
+        });
+      } else {
+        _showErrorDialog(
+            'Number of answers should correspond to the number of questions.');
+      }
+    } else {
+      _showErrorDialog('Please fill in all fields.');
+    }
   }
 }
