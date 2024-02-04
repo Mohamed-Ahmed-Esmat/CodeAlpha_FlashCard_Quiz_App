@@ -1,4 +1,5 @@
 import 'package:flash_card_quiz_app/classes/FlashyCard.dart';
+import 'package:flash_card_quiz_app/pages/quiz.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +15,7 @@ class CardPage extends StatefulWidget {
 class _CardPageState extends State<CardPage> {
   int currentQuestionIndex = 0;
   CardSide side = CardSide.FRONT;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +28,24 @@ class _CardPageState extends State<CardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => QuizPage(
+                      card: widget.card,
+                    ),
+                  ),
+                );
+              },
+              child: Text(
+                'Ready? Let\'s test your knowledge',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
               'Question:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -41,11 +60,10 @@ class _CardPageState extends State<CardPage> {
                 },
                 child: FlipCard(
                   direction: FlipDirection.HORIZONTAL,
-                  side: side,
                   front: Container(
                     color: Colors.blue,
                     alignment: Alignment.center,
-                    child: Text(
+                    child: const Text(
                       'Tap to see the answer',
                       style: TextStyle(
                         fontSize: 18,
@@ -58,7 +76,7 @@ class _CardPageState extends State<CardPage> {
                     alignment: Alignment.center,
                     child: Text(
                       widget.card.answers[currentQuestionIndex],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         color: Colors.white,
                       ),
@@ -71,10 +89,9 @@ class _CardPageState extends State<CardPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: Icon(Icons.arrow_back),
+                  icon: const Icon(Icons.arrow_back),
                   onPressed: () {
                     // Move to the previous question
-                    side = CardSide.BACK;
                     setState(() {
                       if (currentQuestionIndex > 0) {
                         currentQuestionIndex--;
@@ -84,13 +101,12 @@ class _CardPageState extends State<CardPage> {
                 ),
                 Text(
                   '${currentQuestionIndex + 1} / ${widget.card.questions.length}',
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
                 IconButton(
-                  icon: Icon(Icons.arrow_forward),
+                  icon: const Icon(Icons.arrow_forward),
                   onPressed: () {
                     // Move to the next question
-                    side = CardSide.BACK;
                     setState(() {
                       if (currentQuestionIndex <
                           widget.card.questions.length - 1) {
