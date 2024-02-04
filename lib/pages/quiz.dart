@@ -56,6 +56,8 @@ class _QuizPageState extends State<QuizPage> {
                   onPressed: () {
                     // Check the answer and update the score
                     checkAnswer(option);
+                    // Move to the next question or display the score
+                    nextQuestionOrDisplayScore();
                   },
                   child: Text(option),
                 ),
@@ -65,20 +67,22 @@ class _QuizPageState extends State<QuizPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Score: $score',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    // Move to the next question or display the score
-                    nextQuestionOrDisplayScore();
-                  },
-                  child: Text('Next'),
-                ),
+                if (currentQuestionIndex < widget.card.questions.length - 1)
+                  ElevatedButton(
+                    onPressed: () {
+                      // Move to the next question
+                      nextQuestionOrDisplayScore();
+                    },
+                    child: Text('Next'),
+                  ),
               ],
             ),
+            const SizedBox(height: 16),
+            if (currentQuestionIndex == widget.card.questions.length - 1)
+              Text(
+                'Score: $score / ${widget.card.questions.length}',
+                style: const TextStyle(fontSize: 16),
+              ),
           ],
         ),
       ),
@@ -102,27 +106,6 @@ class _QuizPageState extends State<QuizPage> {
         currentQuestionIndex++;
         // Shuffle the options for the new question
         shuffleOptions();
-      } else {
-        // Display the final score
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Quiz Completed'),
-              content:
-                  Text('Your Score: $score / ${widget.card.questions.length}'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    // Optionally, you can reset the quiz or navigate to another screen.
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
       }
     });
   }
