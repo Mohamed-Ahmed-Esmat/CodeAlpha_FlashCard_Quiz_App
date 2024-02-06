@@ -1,4 +1,4 @@
-import 'package:flash_card_quiz_app/pages/home.dart';
+import 'package:flash_card_quiz_app/pages/signup.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatelessWidget {
@@ -33,7 +33,7 @@ class LandingPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => HomePage()),
+                    MaterialPageRoute(builder: (context) => SignUp()),
                   );
                 },
                 style: ButtonStyle(

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "864305747040",
+    "project_id": "flashcard-quiz-app-f2542",
+    "storage_bucket": "flashcard-quiz-app-f2542.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:864305747040:android:d2ed710abed862b7211f05",
+        "android_client_info": {
+          "package_name": "com.esmat.flash_card_quiz_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKXMIjraigulb_ypwNVVu8vRUbx-aquAc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
