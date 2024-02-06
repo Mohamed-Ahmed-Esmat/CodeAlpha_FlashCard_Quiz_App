@@ -24,7 +24,7 @@ class Home extends StatelessWidget {
     return GetMaterialApp(
       theme: ThemeData.light(),
       debugShowCheckedModeBanner: false,
-      home: const LandingPage(),
+      home: const AuthCheck(),
     );
   }
 }
@@ -43,7 +43,7 @@ class _AuthCheckState extends State<AuthCheck> {
       stream: AuthenticationService().authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
-          final User? user = snapshot.data as User?;
+          final User? user = snapshot.data;
           if (user == null) {
             return const LandingPage();
           } else {
