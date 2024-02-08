@@ -4,6 +4,7 @@ import 'package:flash_card_quiz_app/pages/card.dart';
 import 'package:flutter/material.dart';
 
 import '../services/authentication_services.dart';
+import '../services/firestore_services.dart';
 import 'login.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,186 +16,167 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   TextEditingController _searchController = TextEditingController();
-
+  final User? user = AuthenticationService().currentUser;
+  final FirestoreService firestoreService = FirestoreService();
   // Sample list of cards
-  List<FlashyCard> cards = [
-    FlashyCard(
-      title: 'Science Quiz',
-      questions: [
-        'What is the capital of France?',
-        'What is the atomic number of oxygen?'
-      ],
-      answers: ['Paris', '8'],
-    ),
-    FlashyCard(
-      title: 'Math Quiz',
-      questions: ['2 + 2 equals?', 'Square root of 16?'],
-      answers: ['4', '4'],
-    ),
-    // Add more cards as needed
-  ];
+  List<FlashyCard> cards = [];
 
   List<FlashyCard> filteredCards = [];
 
   @override
   void initState() {
     super.initState();
-    // Initialize filteredCards with all cards initially
-    filteredCards = List.from(cards);
+    _loadUserCards();
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: AuthenticationService().authStateChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            final User? user = snapshot.data;
-            if (user == null) {
-              // Handle case where user is null (not authenticated)
-              return LoginPage();
-            }
-            return Scaffold(
-              backgroundColor: const Color.fromRGBO(0, 192, 255, 1.0),
-              appBar: AppBar(
-                title: const Text('Welcome Learner'),
-                backgroundColor: Colors.blue,
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.exit_to_app),
-                    onPressed: () async {
-                      await AuthenticationService().signOut();
-                    },
-                  ),
-                ],
-              ),
-              body: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: 'Search',
-                            border: InputBorder.none,
-                            suffixIcon: IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                filterCards('');
-                              },
-                            ),
+      stream: AuthenticationService().authStateChanges,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          final User? user = snapshot.data;
+          if (user == null) {
+            // Handle case where user is null (not authenticated)
+            return LoginPage();
+          }
+          return Scaffold(
+            backgroundColor: const Color.fromRGBO(0, 192, 255, 1.0),
+            appBar: AppBar(
+              title: Text('Welcome ${user.displayName!}'),
+              backgroundColor: Colors.blue,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.exit_to_app),
+                  onPressed: () async {
+                    await AuthenticationService().signOut();
+                  },
+                ),
+              ],
+            ),
+            body: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              filterCards('');
+                            },
                           ),
-                          onChanged: (value) {
-                            filterCards(value);
-                          },
                         ),
+                        onChanged: (value) {
+                          filterCards(value);
+                        },
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: filteredCards.isEmpty
-                        ? const Center(
-                            child: Text(
-                              'Card don\'t exist',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          )
-                        : Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListView.builder(
-                              itemCount: filteredCards.length,
-                              itemBuilder: (context, index) {
-                                return GestureDetector(
-                                  child: Card(
-                                    elevation: 10,
-                                    color: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            filteredCards[index].title,
-                                            style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.edit,
-                                              color: Colors.blue,
-                                            ),
-                                            onPressed: () {
-                                              _showEditCardDialog(context,
-                                                  filteredCards[index]);
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.delete,
-                                              color: Colors.red,
-                                            ),
-                                            onPressed: () {
-                                              // Delete the card
-                                              setState(() {
-                                                cards.remove(
-                                                    filteredCards[index]);
-                                                filterCards('');
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CardPage(
-                                          card: filteredCards[index],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
+                ),
+                Expanded(
+                  child: filteredCards.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Card don\'t exist',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                  ),
-                ],
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  _showAddCardDialog(context);
-                },
-                child: Icon(Icons.add),
-                backgroundColor: Colors.blue,
-              ),
-            );
-          } else {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-        });
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            itemCount: filteredCards.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                child: Card(
+                                  elevation: 10,
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          filteredCards[index].title,
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.edit,
+                                            color: Colors.blue,
+                                          ),
+                                          onPressed: () {
+                                            _showEditCardDialog(
+                                                context, filteredCards[index]);
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () {
+                                            _deleteCard(filteredCards[index]);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CardPage(
+                                        card: filteredCards[index],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                ),
+              ],
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                _showAddCardDialog(context);
+              },
+              child: Icon(Icons.add),
+              backgroundColor: Colors.blue,
+            ),
+          );
+        } else {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      },
+    );
   }
 
   void filterCards(String query) {
@@ -204,6 +186,15 @@ class _HomePageState extends State<HomePage> {
           .where(
               (card) => card.title.toLowerCase().contains(query.toLowerCase()))
           .toList();
+    });
+  }
+
+  void _loadUserCards() async {
+    List<FlashyCard> userCards = await firestoreService.getFlashyCardsUser();
+
+    setState(() {
+      cards = userCards;
+      filteredCards = List.from(cards);
     });
   }
 
@@ -257,18 +248,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _addNewCard(String title, String questions, String answers) {
+  void _addNewCard(String title, String questions, String answers) async {
     if (title.isNotEmpty && questions.isNotEmpty && answers.isNotEmpty) {
       List<String> questionList = questions.split(',');
       List<String> answerList = answers.split(',');
 
       // Validate that the number of answers corresponds to the number of questions
       if (questionList.length == answerList.length) {
-        setState(() {
-          cards.add(FlashyCard(
-              title: title, questions: questionList, answers: answerList));
-          filterCards(_searchController.text);
-        });
+        await firestoreService.addFlashyCard(title, answerList, questionList);
+        _loadUserCards();
       } else {
         _showErrorDialog(
             'Number of answers should correspond to the number of questions.');
@@ -352,19 +340,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _editCard(
-      FlashyCard card, String title, String questions, String answers) {
+      FlashyCard card, String title, String questions, String answers) async {
     if (title.isNotEmpty && questions.isNotEmpty && answers.isNotEmpty) {
       List<String> questionList = questions.split(',');
       List<String> answerList = answers.split(',');
 
       // Validate that the number of answers corresponds to the number of questions
       if (questionList.length == answerList.length) {
-        setState(() {
-          card.title = title;
-          card.questions = questionList;
-          card.answers = answerList;
-          filterCards(_searchController.text);
-        });
+        // await firestoreService.updateFlashyCard(
+        //     user!.uid, card.cardId!, title, questionList, answerList);
+        _loadUserCards();
       } else {
         _showErrorDialog(
             'Number of answers should correspond to the number of questions.');
@@ -372,5 +357,10 @@ class _HomePageState extends State<HomePage> {
     } else {
       _showErrorDialog('Please fill in all fields.');
     }
+  }
+
+  void _deleteCard(FlashyCard card) async {
+    // await firestoreService.deleteFlashyCard(user!.uid, card.cardId!);
+    _loadUserCards();
   }
 }
