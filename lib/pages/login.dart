@@ -1,300 +1,361 @@
-import 'package:flash_card_quiz_app/pages/signup.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import '../utilities/animations.dart';
-import '../utilities/hex_color.dart';
-
-enum FormData {
-  Email,
-  password,
-}
+import '../services/authentication_services.dart';
+import '../widgets/loading.dart';
+import 'home.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
   @override
-  State<LoginPage> createState() => _LoginScreenState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginScreenState extends State<LoginPage> {
-  Color enabled = const Color.fromARGB(255, 63, 56, 89);
-  Color enabledtxt = Colors.white;
-  Color deaible = Colors.grey;
-  Color backgroundColor = const Color(0xFF1F1A30);
-  bool ispasswordev = true;
-  FormData? selected;
+class _LoginPageState extends State<LoginPage> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  Color myColor = const Color.fromRGBO(179, 121, 223, 0.2);
+  Color signup = const Color.fromRGBO(180, 170, 242, 100);
+  final emailCont = TextEditingController();
+  final passCont = TextEditingController();
+  var hidePass = true;
+  var passIcons = const Icon(Icons.visibility_off);
+  final _formKey = GlobalKey<FormState>();
+  bool loading = false;
 
-  TextEditingController emailController = new TextEditingController();
-  TextEditingController passwordController = new TextEditingController();
+  Future<void> _handleLogin() async {
+    // Validate the form before proceeding
+    if (_formKey.currentState!.validate()) {
+      setState(() => loading = true);
+      String? result = await AuthenticationService().logIn(
+        emailCont.text,
+        passCont.text,
+      );
+
+      // Dismiss the loading page
+      setState(() => loading = false);
+
+      if (result != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error: $result"),
+          ),
+        );
+      } else {
+        // Navigate to the home page and replace the current route
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ),
+        );
+        // Remove the previous routes from the stack
+        Navigator.of(context).removeRoute(
+          ModalRoute.of(context)!,
+        );
+      }
+    }
+  }
+
+  // Future<void> _handleGoogleLogin() async {
+  //   setState(() => loading = true);
+  //   //String? result = await AuthenticationService().signInWithGoogle();
+  //
+  //   // Dismiss the loading page
+  //   setState(() => loading = false);
+  //
+  //   if (result == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text("Error: $result"),
+  //       ),
+  //     );
+  //   } else {
+  //     // Navigate to the home page and replace the current route
+  //     Navigator.of(context).pushReplacement(
+  //       MaterialPageRoute(
+  //         builder: (context) => const HomePage(),
+  //       ),
+  //     );
+  //     // Remove the previous routes from the stack
+  //     Navigator.of(context).removeRoute(
+  //       ModalRoute.of(context)!,
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: const [0.1, 0.4, 0.7, 0.9],
-            colors: [
-              HexColor("#4b4293").withOpacity(0.8),
-              HexColor("#4b4293"),
-              HexColor("#08418e"),
-              HexColor("#08418e")
-            ],
-          ),
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                HexColor("#fff").withOpacity(0.2), BlendMode.dstATop),
-            image: const NetworkImage(
-              'https://mir-s3-cdn-cf.behance.net/project_modules/fs/01b4bd84253993.5d56acc35e143.jpg',
-            ),
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  elevation: 5,
-                  color:
-                      const Color.fromARGB(255, 171, 211, 250).withOpacity(0.4),
-                  child: Container(
-                    width: 400,
-                    padding: const EdgeInsets.all(40.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    return loading
+        ? const Loading()
+        : Scaffold(
+            body: SingleChildScrollView(
+              child: Center(
+                child: Column(
+                  children: [
+                    const SafeArea(
+                      child: SizedBox(
+                        width: 300,
+                        height: 200,
+                        child: Image(
+                          image: AssetImage(
+                              'assets/images/support, technology, error _ deadline, stress, man, customer service.png'),
+                        ),
+                      ),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FadeAnimation(
-                          delay: 0.8,
-                          child: Image.network(
-                            "https://cdni.iconscout.com/illustration/premium/thumb/job-starting-date-2537382-2146478.png",
-                            width: 100,
-                            height: 100,
-                          ),
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
                         ),
-                        const SizedBox(
-                          height: 10,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0x6082AFC4),
+                            Color(0x50B4E7FF),
+                          ],
                         ),
-                        FadeAnimation(
-                          delay: 1,
-                          child: const Text(
-                            "Please sign in to continue",
-                            style: TextStyle(
-                                color: Colors.white, letterSpacing: 0.5),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        FadeAnimation(
-                          delay: 1,
-                          child: Container(
-                            width: 300,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
-                              color: selected == FormData.Email
-                                  ? enabled
-                                  : backgroundColor,
-                            ),
-                            padding: const EdgeInsets.all(5.0),
-                            child: TextField(
-                              controller: emailController,
-                              onTap: () {
-                                setState(() {
-                                  selected = FormData.Email;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                enabledBorder: InputBorder.none,
-                                border: InputBorder.none,
-                                prefixIcon: Icon(
-                                  Icons.email_outlined,
-                                  color: selected == FormData.Email
-                                      ? enabledtxt
-                                      : deaible,
-                                  size: 20,
-                                ),
-                                hintText: 'Email',
-                                hintStyle: TextStyle(
-                                    color: selected == FormData.Email
-                                        ? enabledtxt
-                                        : deaible,
-                                    fontSize: 12),
-                              ),
-                              textAlignVertical: TextAlignVertical.center,
-                              style: TextStyle(
-                                  color: selected == FormData.Email
-                                      ? enabledtxt
-                                      : deaible,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        FadeAnimation(
-                          delay: 1,
-                          child: Container(
-                            width: 300,
-                            height: 40,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12.0),
-                                color: selected == FormData.password
-                                    ? enabled
-                                    : backgroundColor),
-                            padding: const EdgeInsets.all(5.0),
-                            child: TextField(
-                              controller: passwordController,
-                              onTap: () {
-                                setState(() {
-                                  selected = FormData.password;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                  enabledBorder: InputBorder.none,
-                                  border: InputBorder.none,
-                                  prefixIcon: Icon(
-                                    Icons.lock_open_outlined,
-                                    color: selected == FormData.password
-                                        ? enabledtxt
-                                        : deaible,
-                                    size: 20,
-                                  ),
-                                  suffixIcon: IconButton(
-                                    icon: ispasswordev
-                                        ? Icon(
-                                            Icons.visibility_off,
-                                            color: selected == FormData.password
-                                                ? enabledtxt
-                                                : deaible,
-                                            size: 20,
-                                          )
-                                        : Icon(
-                                            Icons.visibility,
-                                            color: selected == FormData.password
-                                                ? enabledtxt
-                                                : deaible,
-                                            size: 20,
-                                          ),
-                                    onPressed: () => setState(
-                                        () => ispasswordev = !ispasswordev),
-                                  ),
-                                  hintText: 'Password',
-                                  hintStyle: TextStyle(
-                                      color: selected == FormData.password
-                                          ? enabledtxt
-                                          : deaible,
-                                      fontSize: 12)),
-                              obscureText: ispasswordev,
-                              textAlignVertical: TextAlignVertical.center,
-                              style: TextStyle(
-                                  color: selected == FormData.password
-                                      ? enabledtxt
-                                      : deaible,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        FadeAnimation(
-                          delay: 1,
-                          child: TextButton(
-                              onPressed: () {
-                                // Navigator.pop(context);
-                                // Navigator.of(context)
-                                //     .push(MaterialPageRoute(builder: (context) {
-                                //   return MyApp(isLogin: true);
-                                // }));
-                              },
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 20),
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
                               child: Text(
                                 "Login",
                                 style: TextStyle(
-                                  color: Colors.white,
-                                  letterSpacing: 0.5,
-                                  fontSize: 16.0,
+                                  fontSize: 30,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              style: TextButton.styleFrom(
-                                  backgroundColor: Color(0xFF2697FF),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 14.0, horizontal: 80),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(12.0)))),
+                            ),
+                            const SizedBox(height: 20),
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
+                              child: Text(
+                                "Email",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
+                              child: TextFormField(
+                                validator: (val) =>
+                                    val!.isEmpty ? 'Enter your email' : null,
+                                controller: emailCont,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  hintText: 'Enter your email',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
+                              child: Text(
+                                "Password",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
+                              child: TextFormField(
+                                validator: (val) =>
+                                    val!.isEmpty ? 'Enter your password' : null,
+                                obscureText: hidePass,
+                                controller: passCont,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  hintText: 'Enter your password',
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      hidePass = !hidePass;
+                                      passIcons = hidePass
+                                          ? const Icon(Icons.visibility_off)
+                                          : const Icon(Icons.visibility);
+                                      setState(() {});
+                                    },
+                                    icon: passIcons,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
+                              child: TextButton(
+                                onPressed: () {
+                                  // Navigator.of(context).push(
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) =>
+                                  //         ForgotPasswordScreen(), // Replace with your CourseInfoScreen widget
+                                  //   ),
+                                  // );
+                                },
+                                child: Text("Forgot Password?"),
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  child: MaterialButton(
+                                    onPressed: () async {
+                                      // Validate the form before logging in
+                                      await _handleLogin();
+                                    },
+                                    child: const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Log in",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(right: 8.0),
+                                      height:
+                                          1.0, // Adjust the height as needed
+                                      color: Colors
+                                          .grey[600], // Color of the dashes
+                                    ),
+                                  ),
+                                  Text(
+                                    "or",
+                                    style: TextStyle(
+                                      color: Colors.grey[800],
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(left: 8.0),
+                                      height:
+                                          1.0, // Adjust the height as needed
+                                      color: Colors
+                                          .grey[600], // Color of the dashes
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      color:
+                                          Colors.grey.shade300, // Border color
+                                      width: 2.0, // Border width
+                                    ),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  child: MaterialButton(
+                                    onPressed: () async {
+                                      // setState(() => loading = true);
+                                      // await _handleGoogleLogin();
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: 50.0,
+                                          height: 50.0,
+                                          alignment: Alignment.center,
+                                          child: Image.asset(
+                                              "assets/images/google.png"),
+                                        ),
+                                        const Text(
+                                          "Login with Google",
+                                          style: TextStyle(fontSize: 18),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Don't have an account ?",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pushReplacementNamed(
+                                        context, '/sign_up');
+                                  },
+                                  child: const Text("Sign up"),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                //End of Center Card
-                //Start of outer card
-                const SizedBox(
-                  height: 10,
-                ),
-                FadeAnimation(
-                  delay: 1,
-                  child: GestureDetector(
-                    onTap: (() {
-                      // Navigator.pop(context);
-                      // Navigator.of(context)
-                      //     .push(MaterialPageRoute(builder: (context) {
-                      //
-                      // }));
-                    }),
-                    child: Text("Can't Log In?",
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          letterSpacing: 0.5,
-                        )),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                FadeAnimation(
-                  delay: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text("Don't have an account? ",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            letterSpacing: 0.5,
-                          )),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (context) {
-                            return SignUp();
-                          }));
-                        },
-                        child: Text("Sign up",
-                            style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                                fontSize: 14)),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
-    );
+          );
+  }
+
+  @override
+  void dispose() {
+    emailCont.dispose();
+    passCont.dispose();
+    super.dispose();
   }
 }
