@@ -1,4 +1,5 @@
 import 'package:flash_card_quiz_app/pages/home.dart';
+import 'package:flash_card_quiz_app/pages/login.dart';
 import 'package:flash_card_quiz_app/services/authentication_services.dart';
 import 'package:flash_card_quiz_app/widgets/loading.dart';
 import 'package:flutter/material.dart';
@@ -272,8 +273,11 @@ class _SignUpState extends State<SignUp> {
                         ),
                         TextButton(
                           onPressed: () async {
-                            // Navigate to the login page
-                            Navigator.pushReplacementNamed(context, '/login');
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => LoginPage(),
+                              ),
+                            );
                           },
                           child: const Text("Login"),
                         ),

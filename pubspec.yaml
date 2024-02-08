@@ -41,6 +41,8 @@ dependencies:
   cloud_firestore: ^4.9.1
   firebase_core: ^2.15.1
   flutter_spinkit: ^5.2.0
+  sa4_migration_kit: ^1.0.0
+  supercharged: ^2.1.1
 
 dev_dependencies:
   flutter_test:
