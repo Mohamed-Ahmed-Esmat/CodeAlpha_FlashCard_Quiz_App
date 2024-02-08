@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_card_quiz_app/pages/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -57,32 +58,32 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Future<void> _handleGoogleLogin() async {
-  //   setState(() => loading = true);
-  //   //String? result = await AuthenticationService().signInWithGoogle();
-  //
-  //   // Dismiss the loading page
-  //   setState(() => loading = false);
-  //
-  //   if (result == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text("Error: $result"),
-  //       ),
-  //     );
-  //   } else {
-  //     // Navigate to the home page and replace the current route
-  //     Navigator.of(context).pushReplacement(
-  //       MaterialPageRoute(
-  //         builder: (context) => const HomePage(),
-  //       ),
-  //     );
-  //     // Remove the previous routes from the stack
-  //     Navigator.of(context).removeRoute(
-  //       ModalRoute.of(context)!,
-  //     );
-  //   }
-  // }
+  Future<void> _handleGoogleLogin() async {
+    setState(() => loading = true);
+    String? result = await AuthenticationService().signInWithGoogle();
+
+    // Dismiss the loading page
+    setState(() => loading = false);
+
+    if (result == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: $result"),
+        ),
+      );
+    } else {
+      // Navigate to the home page and replace the current route
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomePage(),
+        ),
+      );
+      // Remove the previous routes from the stack
+      Navigator.of(context).removeRoute(
+        ModalRoute.of(context)!,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,16 +98,6 @@ class _LoginPageState extends State<LoginPage> {
               child: Center(
                 child: Column(
                   children: [
-                    const SafeArea(
-                      child: SizedBox(
-                        width: 300,
-                        height: 200,
-                        child: Image(
-                          image: AssetImage(
-                              'assets/images/support, technology, error _ deadline, stress, man, customer service.png'),
-                        ),
-                      ),
-                    ),
                     Container(
                       padding: const EdgeInsets.all(10.0),
                       decoration: const BoxDecoration(
@@ -297,8 +288,8 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   child: MaterialButton(
                                     onPressed: () async {
-                                      // setState(() => loading = true);
-                                      // await _handleGoogleLogin();
+                                      setState(() => loading = true);
+                                      await _handleGoogleLogin();
                                     },
                                     child: Row(
                                       mainAxisAlignment:
@@ -334,8 +325,11 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.pushReplacementNamed(
-                                        context, '/sign_up');
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) => SignUp(),
+                                      ),
+                                    );
                                   },
                                   child: const Text("Sign up"),
                                 ),

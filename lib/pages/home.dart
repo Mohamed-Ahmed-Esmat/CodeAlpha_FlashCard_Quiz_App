@@ -59,6 +59,14 @@ class _HomePageState extends State<HomePage> {
               appBar: AppBar(
                 title: const Text('Welcome Learner'),
                 backgroundColor: Colors.blue,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.exit_to_app),
+                    onPressed: () async {
+                      await AuthenticationService().signOut();
+                    },
+                  ),
+                ],
               ),
               body: Column(
                 children: [

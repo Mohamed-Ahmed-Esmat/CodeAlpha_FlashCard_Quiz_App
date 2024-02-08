@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flash_card_quiz_app/pages/home.dart';
 import 'package:flash_card_quiz_app/pages/login.dart';
-import 'package:flash_card_quiz_app/services/authentication_services.dart';
 import 'package:flash_card_quiz_app/widgets/loading.dart';
 import 'package:flutter/material.dart';
+
+import '../services/authentication_services.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -124,6 +126,44 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
+  Future<void> _handleGoogleSignUp() async {
+    setState(() => loading = true);
+
+    try {
+      // Sign out from Google first (if the user is already signed in)
+      await AuthenticationService().signOutGoogle();
+
+      // Sign up with Google
+      User? result = await AuthenticationService().registerWithGoogle();
+
+      // Dismiss the loading page
+      setState(() => loading = false);
+
+      if (result != null) {
+        // Navigate to the home page and replace the current route
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ),
+        );
+        // Remove the previous routes from the stack
+        Navigator.of(context).removeRoute(
+          ModalRoute.of(context)!,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Error: Failed to register"),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle any exceptions that might occur during sign-out or sign-up
+      print("Error: $e");
+      setState(() => loading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return loading
@@ -239,8 +279,9 @@ class _SignUpState extends State<SignUp> {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: OutlinedButton(
-                          onPressed: () {
-                            // Add your Google sign-up logic here
+                          onPressed: () async {
+                            setState(() => loading = true);
+                            await _handleGoogleSignUp();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
