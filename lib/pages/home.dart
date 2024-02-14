@@ -22,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   List<FlashyCard> cards = [];
   final CardListNotifier cardListNotifier = CardListNotifier();
   List<FlashyCard> filteredCards = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -57,122 +58,138 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                body: cards.isEmpty
-                    ? const Center(
+                body: isLoading
+                    ? Center(
                         child: CircularProgressIndicator(),
                       )
-                    : Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0),
-                                child: TextField(
-                                  controller: _searchController,
-                                  decoration: InputDecoration(
-                                    hintText: 'Search',
-                                    border: InputBorder.none,
-                                    suffixIcon: IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        _searchController.clear();
-                                        filterCards('');
-                                      },
-                                    ),
-                                  ),
-                                  onChanged: (value) {
-                                    filterCards(value);
-                                  },
-                                ),
+                    : cards.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No cards available',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: filteredCards.isEmpty
-                                ? const Center(
-                                    child: Text(
-                                      'Card don\'t exist',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  )
-                                : Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: ListView.builder(
-                                      itemCount: filteredCards.length,
-                                      itemBuilder: (context, index) {
-                                        return GestureDetector(
-                                          child: Card(
-                                            elevation: 10,
-                                            color: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    filteredCards[index].title,
-                                                    style: const TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons.edit,
-                                                      color: Colors.blue,
-                                                    ),
-                                                    onPressed: () {
-                                                      _showEditCardDialog(
-                                                          context,
-                                                          filteredCards[index]);
-                                                    },
-                                                  ),
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons.delete,
-                                                      color: Colors.red,
-                                                    ),
-                                                    onPressed: () {
-                                                      _deleteCard(
-                                                          filteredCards[index]);
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => CardPage(
-                                                  card: filteredCards[index],
-                                                ),
-                                              ),
-                                            );
+                          )
+                        : Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
+                                    child: TextField(
+                                      controller: _searchController,
+                                      decoration: InputDecoration(
+                                        hintText: 'Search',
+                                        border: InputBorder.none,
+                                        suffixIcon: IconButton(
+                                          icon: const Icon(Icons.clear),
+                                          onPressed: () {
+                                            _searchController.clear();
+                                            filterCards('');
                                           },
-                                        );
+                                        ),
+                                      ),
+                                      onChanged: (value) {
+                                        filterCards(value);
                                       },
                                     ),
                                   ),
+                                ),
+                              ),
+                              Expanded(
+                                child: filteredCards.isEmpty
+                                    ? Center(
+                                        child: Text(
+                                          'No matching cards found',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      )
+                                    : Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ListView.builder(
+                                          itemCount: filteredCards.length,
+                                          itemBuilder: (context, index) {
+                                            return GestureDetector(
+                                              child: Card(
+                                                elevation: 10,
+                                                color: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.0),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        filteredCards[index]
+                                                            .title,
+                                                        style: const TextStyle(
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      IconButton(
+                                                        icon: const Icon(
+                                                          Icons.edit,
+                                                          color: Colors.blue,
+                                                        ),
+                                                        onPressed: () {
+                                                          _showEditCardDialog(
+                                                              context,
+                                                              filteredCards[
+                                                                  index]);
+                                                        },
+                                                      ),
+                                                      IconButton(
+                                                        icon: const Icon(
+                                                          Icons.delete,
+                                                          color: Colors.red,
+                                                        ),
+                                                        onPressed: () {
+                                                          _deleteCard(
+                                                              filteredCards[
+                                                                  index]);
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CardPage(
+                                                      card:
+                                                          filteredCards[index],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
                 floatingActionButton: FloatingActionButton(
                   onPressed: () {
                     _showAddCardDialog(context);
@@ -204,14 +221,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _loadUserCards() async {
-    List<FlashyCard> userCards = await firestoreService.getFlashyCardsUser();
+    try {
+      List<FlashyCard> userCards = await firestoreService.getFlashyCardsUser();
 
-    if (mounted) {
+      if (mounted) {
+        setState(() {
+          cards = userCards;
+          filteredCards = List.from(cards);
+          isLoading = false; // Set loading to false after loading cards
+        });
+        cardListNotifier.update(cards);
+      }
+    } catch (error) {
+      print("Error loading cards: $error");
+      // Handle the error as needed
+      // Set loading to false to stop the CircularProgressIndicator
       setState(() {
-        cards = userCards;
-        filteredCards = List.from(cards);
+        isLoading = false;
       });
-      cardListNotifier.update(cards);
     }
   }
 
@@ -382,10 +409,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _deleteCard(FlashyCard card) async {
+    // Remove the card from the UI
+    setState(() {
+      cards.remove(card);
+      filteredCards.remove(card);
+    });
+
     // Call the deleteFlashyCard method
     await firestoreService.deleteFlashyCard(card.cardId);
-
-    // Reload the cards
-    _loadUserCards();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flash_card_quiz_app/classes/FlashyCard.dart';
 import 'package:flash_card_quiz_app/pages/quiz.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
 
 class CardPage extends StatefulWidget {
@@ -15,7 +16,7 @@ class CardPage extends StatefulWidget {
 class _CardPageState extends State<CardPage> {
   int currentQuestionIndex = 0;
   CardSide side = CardSide.FRONT;
-
+  final FlipCardController flipCardController = FlipCardController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +42,7 @@ class _CardPageState extends State<CardPage> {
               },
               child: Text(
                 'Ready? Let\'s test your knowledge',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 16),
@@ -59,6 +60,7 @@ class _CardPageState extends State<CardPage> {
                   // Do nothing, since the FlipCard will handle the flipping
                 },
                 child: FlipCard(
+                  controller: flipCardController,
                   direction: FlipDirection.HORIZONTAL,
                   front: Container(
                     color: Colors.blue,
