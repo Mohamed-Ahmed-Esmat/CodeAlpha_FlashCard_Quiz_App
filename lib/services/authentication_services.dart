@@ -63,7 +63,7 @@ class AuthenticationService {
       await usersCollection.doc(userId).set({
         'username': name,
         'email': email,
-        'cards': ['test'],
+        'cards': [],
       });
       return null; // No error, registration successful
     } catch (e) {

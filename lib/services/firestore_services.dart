@@ -8,7 +8,7 @@ class FirestoreService {
   final AuthenticationService _authenticationService = AuthenticationService();
   String get currentUserId => _authenticationService.currentUser!.uid;
 
-  Future<void> addFlashyCard(
+  Future<FlashyCard> addFlashyCard(
       String title, List<String> questions, List<String> answers) async {
     try {
       final CollectionReference flashycardCollection =
@@ -24,8 +24,18 @@ class FirestoreService {
       await _firestore.collection('user').doc(currentUserId).update({
         'cards': FieldValue.arrayUnion([docRef.id])
       });
+
+      // Return the newly created FlashyCard
+      return FlashyCard(
+        cardId: docRef.id,
+        title: title,
+        questions: questions,
+        answers: answers,
+        quizScores: [0],
+      );
     } catch (e) {
       print('Error adding new flashycard: $e');
+      throw e;
     }
   }
 

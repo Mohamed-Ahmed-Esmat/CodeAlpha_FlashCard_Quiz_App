@@ -11,7 +11,7 @@ class Loading extends StatelessWidget {
       child: const Center(
         child: SpinKitRotatingPlain(
           color: Colors.blue,
-          size: 50.0,
+          size: 75.0,
         ),
       ),
     );

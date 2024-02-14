@@ -252,8 +252,12 @@ class _HomePageState extends State<HomePage> {
 
       // Validate that the number of answers corresponds to the number of questions
       if (questionList.length == answerList.length) {
-        await firestoreService.addFlashyCard(title, answerList, questionList);
-        _loadUserCards();
+        FlashyCard newCard = await firestoreService.addFlashyCard(
+            title, answerList, questionList);
+        setState(() {
+          cards.add(newCard);
+          filteredCards.add(newCard);
+        });
       } else {
         _showErrorDialog(
             'Number of answers should correspond to the number of questions.');
