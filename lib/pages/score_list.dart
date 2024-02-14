@@ -27,9 +27,11 @@ class ScoreListPage extends StatelessWidget {
             return ListView.builder(
               itemCount: quizScores.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text('Quiz ${index + 1}'),
-                  trailing: Text('Score: ${quizScores[index]}'),
+                return SingleChildScrollView(
+                  child: ListTile(
+                    title: Text('Quiz ${index + 1}'),
+                    trailing: Text('Score: ${quizScores[index]}'),
+                  ),
                 );
               },
             );

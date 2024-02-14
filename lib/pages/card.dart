@@ -1,6 +1,5 @@
 import 'package:flash_card_quiz_app/classes/FlashyCard.dart';
 import 'package:flash_card_quiz_app/pages/quiz.dart';
-import 'package:flash_card_quiz_app/pages/score_list.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 
@@ -117,22 +116,6 @@ class _CardPageState extends State<CardPage> {
                   },
                 ),
               ],
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ScoreListPage(
-                      card: widget.card,
-                    ),
-                  ),
-                );
-              },
-              child: Text(
-                'View quiz scores',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
             ),
           ],
         ),
