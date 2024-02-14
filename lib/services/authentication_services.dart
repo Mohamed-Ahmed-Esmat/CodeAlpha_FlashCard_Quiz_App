@@ -57,15 +57,13 @@ class AuthenticationService {
       String userId, String name, String email) async {
     try {
       final CollectionReference usersCollection =
-          FirebaseFirestore.instance.collection('users');
+          FirebaseFirestore.instance.collection('user');
 
       // Create a document for the user or update an existing one
       await usersCollection.doc(userId).set({
-        'fullname': name,
+        'username': name,
         'email': email,
-        'university': 'Ain Shams University',
-        'faculty': 'Faculty of Engineering',
-        'followed_courses': [],
+        'cards': ['test'],
       });
       return null; // No error, registration successful
     } catch (e) {

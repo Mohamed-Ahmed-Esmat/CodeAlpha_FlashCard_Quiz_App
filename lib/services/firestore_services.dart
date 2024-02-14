@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 
 import '../classes/FlashyCard.dart';
 import 'authentication_services.dart';
@@ -16,78 +15,53 @@ class FirestoreService {
           FirebaseFirestore.instance.collection('flashycard');
       final DocumentReference docRef = await flashycardCollection.add({
         'questions': questions,
+        'quizScores': [0],
         'answers': answers,
         'title': title,
       });
 
-      // Get the ID of the newly added document and update the user's followed_courses
-      await _firestore.collection('users').doc(currentUserId).update({
-        'followed_courses': FieldValue.arrayUnion([docRef.id])
+      // Get the ID of the newly added document and update the user's cards
+      await _firestore.collection('user').doc(currentUserId).update({
+        'cards': FieldValue.arrayUnion([docRef.id])
       });
     } catch (e) {
       print('Error adding new flashycard: $e');
     }
   }
 
-  Future<List<String>> getUserFollowing() async {
-    try {
-      final userDoc =
-          await _firestore.collection('users').doc(currentUserId).get();
+  Future<List<FlashyCard>> getFlashyCardsUser() async {
+    final userDoc =
+        await _firestore.collection('user').doc(currentUserId).get();
+    final List<dynamic> cardIds = userDoc['cards'] ?? [];
+    final List<FlashyCard> cards = [];
 
-      if (userDoc.exists) {
-        final userData = userDoc.data();
-
-        if (userData != null && userData['followed_courses'] is List) {
-          final List<dynamic> userFollowing = userData['followed_courses'];
-          return userFollowing.map((item) => item.toString()).toList();
-        }
-      }
-      return []; // Return an empty list if user data doesn't exist or no following courses
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching user following data: $e');
-      }
-      return []; // Handle the error and return an empty list
+    for (final cardId in cardIds) {
+      final cardDoc =
+          await _firestore.collection('flashycard').doc(cardId).get();
+      cards.add(FlashyCard.fromDocument(cardDoc));
     }
+
+    return cards;
   }
 
-  Future<List<FlashyCard>> getFlashyCardsUser() async {
-    try {
-      final userFollowing = await getUserFollowing();
+  Future<void> editFlashyCard(String cardId, String title,
+      List<String> questions, List<String> answers) async {
+    final cardDoc = _firestore.collection('flashycard').doc(cardId);
 
-      final querySnapshot = await _firestore
-          .collection('flashycard')
-          .where(FieldPath.documentId, whereIn: userFollowing)
-          .get();
+    await cardDoc.update({
+      'title': title,
+      'questions': questions,
+      'answers': answers,
+    });
+  }
 
-      return querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        final questions = data['questions'] as List<String>?; // Add null-check
-        final answers = data['answers'] as List<String>?; // Add null-check
-        final title = data['title'] as String?; // Add null-check
+  Future<void> deleteFlashyCard(String cardId) async {
+    final cardDoc = _firestore.collection('flashycard').doc(cardId);
 
-        if (questions == null) {
-          print('card questions is null for document ID: ${doc.id}');
-        }
-        if (answers == null) {
-          print('card answers is null for document ID: ${doc.id}');
-        }
-        if (title == null) {
-          print('card title is null for document ID: ${doc.id}');
-        }
+    await cardDoc.delete();
 
-        return FlashyCard(
-          questions: questions ?? [], // Provide a default value if null
-          title: title ?? '', // Provide a default value if null
-          cardId: doc.id,
-          answers: answers ?? [], // Provide a default value if null
-        );
-      }).toList();
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching user following data: $e');
-      }
-      return []; // Handle the error and return an empty list
-    }
+    await _firestore.collection('user').doc(currentUserId).update({
+      'cards': FieldValue.arrayRemove([cardId])
+    });
   }
 }

@@ -18,7 +18,6 @@ class _HomePageState extends State<HomePage> {
   TextEditingController _searchController = TextEditingController();
   final User? user = AuthenticationService().currentUser;
   final FirestoreService firestoreService = FirestoreService();
-  // Sample list of cards
   List<FlashyCard> cards = [];
 
   List<FlashyCard> filteredCards = [];
@@ -37,7 +36,6 @@ class _HomePageState extends State<HomePage> {
         if (snapshot.connectionState == ConnectionState.active) {
           final User? user = snapshot.data;
           if (user == null) {
-            // Handle case where user is null (not authenticated)
             return LoginPage();
           }
           return Scaffold(
@@ -181,7 +179,6 @@ class _HomePageState extends State<HomePage> {
 
   void filterCards(String query) {
     setState(() {
-      // Filter cards based on the search query
       filteredCards = cards
           .where(
               (card) => card.title.toLowerCase().contains(query.toLowerCase()))
@@ -347,8 +344,9 @@ class _HomePageState extends State<HomePage> {
 
       // Validate that the number of answers corresponds to the number of questions
       if (questionList.length == answerList.length) {
-        // await firestoreService.updateFlashyCard(
-        //     user!.uid, card.cardId!, title, questionList, answerList);
+        // Call the editFlashyCard method from FirestoreService
+        await firestoreService.editFlashyCard(
+            card.cardId, title, questionList, answerList);
         _loadUserCards();
       } else {
         _showErrorDialog(
@@ -360,7 +358,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _deleteCard(FlashyCard card) async {
-    // await firestoreService.deleteFlashyCard(user!.uid, card.cardId!);
+    // Call the deleteFlashyCard method
+    await firestoreService.deleteFlashyCard(card.cardId);
+
+    // Reload the cards
     _loadUserCards();
   }
 }
