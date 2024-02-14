@@ -206,11 +206,13 @@ class _HomePageState extends State<HomePage> {
   void _loadUserCards() async {
     List<FlashyCard> userCards = await firestoreService.getFlashyCardsUser();
 
-    setState(() {
-      cards = userCards;
-      filteredCards = List.from(cards);
-    });
-    cardListNotifier.update(cards);
+    if (mounted) {
+      setState(() {
+        cards = userCards;
+        filteredCards = List.from(cards);
+      });
+      cardListNotifier.update(cards);
+    }
   }
 
   void _showAddCardDialog(BuildContext context) {

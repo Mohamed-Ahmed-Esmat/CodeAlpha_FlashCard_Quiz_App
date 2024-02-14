@@ -1,9 +1,10 @@
 import 'package:flash_card_quiz_app/classes/FlashyCard.dart';
 import 'package:flutter/material.dart';
 
+import '../services/firestore_services.dart';
+
 class QuizPage extends StatefulWidget {
   final FlashyCard card;
-
   const QuizPage({Key? key, required this.card}) : super(key: key);
 
   @override
@@ -14,10 +15,15 @@ class _QuizPageState extends State<QuizPage> {
   int currentQuestionIndex = 0;
   int score = 0;
   List<String> shuffledOptions = [];
+  bool quizFinished = false;
+  String? selectedOption;
+  final FirestoreService _firestoreService = FirestoreService();
 
   @override
   void initState() {
     super.initState();
+    // Shuffle the questions for the quiz
+    widget.card.questions.shuffle();
     // Shuffle the options for the first question
     shuffleOptions();
   }
@@ -52,14 +58,41 @@ class _QuizPageState extends State<QuizPage> {
             ...shuffledOptions.map((option) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Check the answer and update the score
-                    checkAnswer(option);
-                    // Move to the next question or display the score
-                    nextQuestionOrDisplayScore();
-                  },
-                  child: Text(option),
+                child: Card(
+                  color: selectedOption == option
+                      ? (option == widget.card.answers[currentQuestionIndex]
+                          ? Colors.green
+                          : Colors.red)
+                      : Colors.blue,
+                  child: ListTile(
+                    title: Text(
+                      option,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () async {
+                      if (!quizFinished && selectedOption == null) {
+                        // Set the selected option
+                        setState(() {
+                          selectedOption = option;
+                        });
+                        // Check the answer and update the score
+                        checkAnswer(option);
+                        // If it's the last question, display the score
+                        if (currentQuestionIndex ==
+                            widget.card.questions.length - 1) {
+                          // Store the score in the quizScores list of the FlashyCard class
+                          widget.card.quizScores.add(score);
+                          showScoreDialog();
+                          await _firestoreService.addQuizScore(
+                              widget.card.cardId, score);
+
+                          // Mark the quiz as finished
+                          quizFinished = true;
+                          // Display the score immediately after the final question
+                        }
+                      }
+                    },
+                  ),
                 ),
               );
             }).toList(),
@@ -70,15 +103,18 @@ class _QuizPageState extends State<QuizPage> {
                 if (currentQuestionIndex < widget.card.questions.length - 1)
                   ElevatedButton(
                     onPressed: () {
-                      // Move to the next question
-                      nextQuestionOrDisplayScore();
+                      if (!quizFinished) {
+                        // Move to the next question
+                        nextQuestionOrDisplayScore();
+                      }
                     },
-                    child: Text('Next'),
+                    child:
+                        Icon(Icons.arrow_forward), // Change 'Next' to an arrow
                   ),
               ],
             ),
             const SizedBox(height: 16),
-            if (currentQuestionIndex == widget.card.questions.length - 1)
+            if (quizFinished)
               Text(
                 'Score: $score / ${widget.card.questions.length}',
                 style: const TextStyle(fontSize: 16),
@@ -106,8 +142,38 @@ class _QuizPageState extends State<QuizPage> {
         currentQuestionIndex++;
         // Shuffle the options for the new question
         shuffleOptions();
+        // Reset the selected option
+        selectedOption = null;
+      } else {
+        // Store the score in the quizScores list of the FlashyCard class
+        widget.card.quizScores.add(score);
+        // Update the quizScores list in Firestore
+        // Mark the quiz as finished
+        quizFinished = true;
+        // Display the score immediately after the final question
       }
     });
+  }
+
+  void showScoreDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Quiz Finished'),
+          content:
+              Text('Your score is $score / ${widget.card.questions.length}'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void shuffleOptions() {

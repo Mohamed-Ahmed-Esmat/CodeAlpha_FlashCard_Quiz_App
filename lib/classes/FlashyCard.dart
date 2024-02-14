@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FlashyCard {
   String cardId;
   String title;
-  List<int> quizScores = [0];
+  List<int> quizScores = [];
   List<String> questions;
   List<String> answers;
 

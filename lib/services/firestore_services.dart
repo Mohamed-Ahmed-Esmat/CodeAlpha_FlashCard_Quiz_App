@@ -31,7 +31,7 @@ class FirestoreService {
         title: title,
         questions: questions,
         answers: answers,
-        quizScores: [0],
+        quizScores: [],
       );
     } catch (e) {
       print('Error adding new flashycard: $e');
@@ -73,5 +73,50 @@ class FirestoreService {
     await _firestore.collection('user').doc(currentUserId).update({
       'cards': FieldValue.arrayRemove([cardId])
     });
+  }
+
+  Future<void> addQuizScore(String cardId, int score) async {
+    try {
+      // Get the document reference
+      final DocumentReference cardDoc =
+          _firestore.collection('flashycard').doc(cardId);
+
+      // Get the current document
+      final DocumentSnapshot currentDoc = await cardDoc.get();
+
+      // Get the quizScores list
+      List<int> quizScores = List<int>.from(currentDoc['quizScores']);
+      print("Quiz Scores 1: \n");
+      print(quizScores);
+      // Add the new score to the list
+      quizScores.add(score);
+      // Update the quizScores list in Firestore
+      await cardDoc.update({
+        'quizScores': quizScores,
+      });
+    } catch (e) {
+      print('Error adding quiz score: $e');
+      throw e;
+    }
+  }
+
+  Future<List<int>> getQuizScores(String cardId) async {
+    try {
+      // Get the document reference
+      final DocumentReference cardDoc =
+          _firestore.collection('flashycard').doc(cardId);
+
+      // Get the current document
+      final DocumentSnapshot currentDoc = await cardDoc.get();
+
+      // Get the quizScores list
+      List<int> quizScores = List<int>.from(currentDoc['quizScores']);
+      print("Quiz Scores 2: \n");
+      print(quizScores);
+      return quizScores;
+    } catch (e) {
+      print('Error getting quiz scores: $e');
+      throw e;
+    }
   }
 }
