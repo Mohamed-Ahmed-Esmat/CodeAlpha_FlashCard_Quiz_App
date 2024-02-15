@@ -119,4 +119,20 @@ class FirestoreService {
       throw e;
     }
   }
+
+  Future<void> deleteScoreList(String cardId) async {
+    try {
+      // Get a reference to the document
+      DocumentReference cardRef =
+          FirebaseFirestore.instance.collection('flashycard').doc(cardId);
+
+      // Update the document to set 'quizScores' to an empty list
+      await cardRef.update({
+        'quizScores': [],
+      });
+    } catch (e) {
+      print(e);
+      throw e;
+    }
+  }
 }

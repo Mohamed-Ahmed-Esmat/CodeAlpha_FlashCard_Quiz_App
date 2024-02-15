@@ -423,20 +423,40 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Delete'),
-          content: const Text('Are you sure you want to delete this card?',
-              style: TextStyle(
-                color: Colors.red,
-              )),
+          title: const Text(
+            'Confirm Delete',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 30,
+            ),
+          ),
+          content: const Text(
+            'Are you sure you want to delete this card?',
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Delete'),
+              child: const Text(
+                'Delete',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
               onPressed: () {
                 // Call your function to delete the card here
                 _deleteCard(filteredCards[index]);
