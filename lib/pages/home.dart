@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flash_card_quiz_app/classes/FlashyCard.dart';
 import 'package:flash_card_quiz_app/pages/card.dart';
+import 'package:flash_card_quiz_app/widgets/list_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../services/authentication_services.dart';
-import '../services/firestore_services.dart';
-import '../widgets/list_notifier.dart';
 import 'login.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,19 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  TextEditingController _searchController = TextEditingController();
-  final User? user = AuthenticationService().currentUser;
-  final FirestoreService firestoreService = FirestoreService();
-  List<FlashyCard> cards = [];
-  final CardListNotifier cardListNotifier = CardListNotifier();
-  List<FlashyCard> filteredCards = [];
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserCards();
-  }
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +28,8 @@ class _HomePageState extends State<HomePage> {
           if (user == null) {
             return const LoginPage();
           }
-          return ValueListenableBuilder(
-            valueListenable: cardListNotifier,
-            builder:
-                (BuildContext context, List<FlashyCard> value, Widget? child) {
+          return Consumer<CardListProvider>(
+            builder: (context, cardListProvider, child) {
               return Scaffold(
                 backgroundColor: const Color.fromRGBO(0, 192, 255, 1.0),
                 appBar: AppBar(
@@ -58,143 +44,140 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                body: isLoading
+                body: cardListProvider.cards.isEmpty
                     ? const Center(
-                        child: CircularProgressIndicator(),
+                        child: Text(
+                          'No cards available',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       )
-                    : cards.isEmpty
-                        ? const Center(
-                            child: Text(
-                              'No cards available',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                    : Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8.0),
                               ),
-                            ),
-                          )
-                        : Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: TextField(
-                                      controller: _searchController,
-                                      decoration: InputDecoration(
-                                        hintText: 'Search',
-                                        border: InputBorder.none,
-                                        suffixIcon: IconButton(
-                                          icon: const Icon(Icons.clear),
-                                          onPressed: () {
-                                            _searchController.clear();
-                                            filterCards('');
-                                          },
-                                        ),
-                                      ),
-                                      onChanged: (value) {
-                                        filterCards(value);
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
+                                child: TextField(
+                                  controller: _searchController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Search',
+                                    border: InputBorder.none,
+                                    suffixIcon: IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        cardListProvider.filterCards('');
                                       },
                                     ),
                                   ),
+                                  onSubmitted: (value) {
+                                    cardListProvider.filterCards(value);
+                                  },
                                 ),
                               ),
-                              Expanded(
-                                child: filteredCards.isEmpty
-                                    ? const Center(
-                                        child: Text(
-                                          'No matching cards found',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      )
-                                    : Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: ListView.builder(
-                                          itemCount: filteredCards.length,
-                                          itemBuilder: (context, index) {
-                                            return GestureDetector(
-                                              child: Card(
-                                                elevation: 10,
-                                                color: Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0),
-                                                ),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Row(
-                                                    children: [
-                                                      Text(
-                                                        filteredCards[index]
-                                                            .title,
-                                                        style: const TextStyle(
-                                                          fontSize: 20,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      const Spacer(),
-                                                      IconButton(
-                                                        icon: const Icon(
-                                                          Icons.edit,
-                                                          color: Colors.blue,
-                                                        ),
-                                                        onPressed: () {
-                                                          _showEditCardDialog(
-                                                              context,
-                                                              filteredCards[
-                                                                  index]);
-                                                        },
-                                                      ),
-                                                      IconButton(
-                                                        icon: const Icon(
-                                                          Icons.delete,
-                                                          color: Colors.red,
-                                                        ),
-                                                        onPressed: () {
-                                                          confirmDelete(
-                                                              context, index);
-                                                        },
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        CardPage(
-                                                      card:
-                                                          filteredCards[index],
+                            ),
+                          ),
+                          Expanded(
+                            child: cardListProvider.filteredCards.isEmpty
+                                ? const Center(
+                                    child: Text(
+                                      'No matching cards found',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ListView.builder(
+                                      itemCount:
+                                          cardListProvider.filteredCards.length,
+                                      itemBuilder: (context, index) {
+                                        return GestureDetector(
+                                          child: Card(
+                                            elevation: 10,
+                                            color: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    cardListProvider
+                                                        .filteredCards[index]
+                                                        .title,
+                                                    style: const TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
-                                                );
-                                              },
+                                                  const Spacer(),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.edit,
+                                                      color: Colors.blue,
+                                                    ),
+                                                    onPressed: () {
+                                                      _showEditCardDialog(
+                                                          context,
+                                                          cardListProvider
+                                                                  .filteredCards[
+                                                              index]);
+                                                    },
+                                                  ),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.delete,
+                                                      color: Colors.red,
+                                                    ),
+                                                    onPressed: () {
+                                                      confirmDelete(
+                                                          context, index);
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => CardPage(
+                                                  card: cardListProvider
+                                                      .filteredCards[index],
+                                                ),
+                                              ),
                                             );
                                           },
-                                        ),
-                                      ),
-                              ),
-                            ],
+                                        );
+                                      },
+                                    ),
+                                  ),
                           ),
+                        ],
+                      ),
                 floatingActionButton: FloatingActionButton(
                   onPressed: () {
                     _showAddCardDialog(context);
                   },
-                  child: const Icon(Icons.add),
                   backgroundColor: Colors.blue,
+                  child: const Icon(Icons.add),
                 ),
               );
             },
@@ -208,37 +191,6 @@ class _HomePageState extends State<HomePage> {
         }
       },
     );
-  }
-
-  void filterCards(String query) {
-    setState(() {
-      filteredCards = cards
-          .where(
-              (card) => card.title.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
-  }
-
-  void _loadUserCards() async {
-    try {
-      List<FlashyCard> userCards = await firestoreService.getFlashyCardsUser();
-
-      if (mounted) {
-        setState(() {
-          cards = userCards;
-          filteredCards = List.from(cards);
-          isLoading = false; // Set loading to false after loading cards
-        });
-        cardListNotifier.update(cards);
-      }
-    } catch (error) {
-      print("Error loading cards: $error");
-      // Handle the error as needed
-      // Set loading to false to stop the CircularProgressIndicator
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
 
   void _showAddCardDialog(BuildContext context) {
@@ -279,53 +231,12 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {
-                _addNewCard(titleController.text, questionsController.text,
-                    answersController.text);
+                Provider.of<CardListProvider>(context, listen: false)
+                    .addNewCard(titleController.text, questionsController.text,
+                        answersController.text);
                 Navigator.pop(context);
               },
               child: const Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _addNewCard(String title, String questions, String answers) async {
-    if (title.isNotEmpty && questions.isNotEmpty && answers.isNotEmpty) {
-      List<String> questionList = questions.split(',');
-      List<String> answerList = answers.split(',');
-
-      // Validate that the number of answers corresponds to the number of questions
-      if (questionList.length == answerList.length) {
-        FlashyCard newCard = await firestoreService.addFlashyCard(
-            title, questionList, answerList);
-        setState(() {
-          cards.add(newCard);
-          filteredCards.add(newCard);
-        });
-      } else {
-        _showErrorDialog(
-            'Number of answers should correspond to the number of questions.');
-      }
-    } else {
-      _showErrorDialog('Please fill in all fields.');
-    }
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
             ),
           ],
         );
@@ -374,7 +285,10 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {
-                _editCard(card, titleController.text, questionsController.text,
+                Provider.of<CardListProvider>(context, listen: false).editCard(
+                    card,
+                    titleController.text,
+                    questionsController.text,
                     answersController.text);
                 Navigator.pop(context);
               },
@@ -384,38 +298,6 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-  }
-
-  void _editCard(
-      FlashyCard card, String title, String questions, String answers) async {
-    if (title.isNotEmpty && questions.isNotEmpty && answers.isNotEmpty) {
-      List<String> questionList = questions.split(',');
-      List<String> answerList = answers.split(',');
-
-      // Validate that the number of answers corresponds to the number of questions
-      if (questionList.length == answerList.length) {
-        // Call the editFlashyCard method from FirestoreService
-        await firestoreService.editFlashyCard(
-            card.cardId, title, questionList, answerList);
-        _loadUserCards();
-      } else {
-        _showErrorDialog(
-            'Number of answers should correspond to the number of questions.');
-      }
-    } else {
-      _showErrorDialog('Please fill in all fields.');
-    }
-  }
-
-  void _deleteCard(FlashyCard card) async {
-    // Remove the card from the UI
-    setState(() {
-      cards.remove(card);
-      filteredCards.remove(card);
-    });
-
-    // Call the deleteFlashyCard method
-    await firestoreService.deleteFlashyCard(card.cardId);
   }
 
   void confirmDelete(BuildContext context, int index) {
@@ -458,8 +340,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               onPressed: () {
-                // Call your function to delete the card here
-                _deleteCard(filteredCards[index]);
+                Provider.of<CardListProvider>(context, listen: false)
+                    .deleteCard(index);
                 Navigator.of(context).pop();
               },
             ),

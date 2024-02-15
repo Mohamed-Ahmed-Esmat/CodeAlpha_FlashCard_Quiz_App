@@ -3,8 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flash_card_quiz_app/pages/home.dart';
 import 'package:flash_card_quiz_app/pages/landing_page.dart';
 import 'package:flash_card_quiz_app/services/authentication_services.dart';
+import 'package:flash_card_quiz_app/widgets/list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 
@@ -39,24 +41,31 @@ class AuthCheck extends StatefulWidget {
 class _AuthCheckState extends State<AuthCheck> {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: AuthenticationService().authStateChanges,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final User? user = snapshot.data;
-          if (user == null) {
-            return const LandingPage();
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => CardListProvider(),
+        )
+      ],
+      child: StreamBuilder(
+        stream: AuthenticationService().authStateChanges,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.active) {
+            final User? user = snapshot.data;
+            if (user == null) {
+              return const LandingPage();
+            } else {
+              return const HomePage(); // Remove the null check operator here
+            }
           } else {
-            return const HomePage(); // Remove the null check operator here
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
           }
-        } else {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-      },
+        },
+      ),
     );
   }
 }
