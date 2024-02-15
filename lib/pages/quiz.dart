@@ -15,6 +15,7 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   int currentQuestionIndex = 0;
   int score = 0;
+  int questionIndex = 0;
   List<String> shuffledOptions = [];
   List<String> shuffledOQuestions = [];
   bool quizFinished = false;
@@ -25,19 +26,24 @@ class _QuizPageState extends State<QuizPage> {
   void initState() {
     super.initState();
     // Shuffle the questions for the quiz
-    shuffledOQuestions = widget.card.questions;
+    shuffledOQuestions = List.from(widget.card.questions)..shuffle();
     print("Original List: ");
     print(widget.card.questions);
     print("Shuffled List: ");
     print(shuffledOQuestions);
     // Shuffle the options for the first question
     shuffleOptions();
+    // Find the index of the current question in the original list
+    questionIndex =
+        widget.card.questions.indexOf(shuffledOQuestions[currentQuestionIndex]);
   }
 
   @override
   Widget build(BuildContext context) {
-    int questionIndex =
+    questionIndex =
         widget.card.questions.indexOf(shuffledOQuestions[currentQuestionIndex]);
+    print("Question Index out: ");
+    print(questionIndex);
     return Scaffold(
       appBar: AppBar(
         title: Text('Quiz Page'),
@@ -152,7 +158,7 @@ class _QuizPageState extends State<QuizPage> {
 
   void checkAnswer(String selectedOption) {
     // Check if the selected option is correct
-    if (selectedOption == widget.card.answers[currentQuestionIndex]) {
+    if (selectedOption == widget.card.answers[questionIndex]) {
       setState(() {
         // Increment the score for a correct answer
         score++;
@@ -201,19 +207,29 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   void shuffleOptions() {
+    questionIndex =
+        widget.card.questions.indexOf(shuffledOQuestions[currentQuestionIndex]);
     // Get all incorrect answers
     List<String> incorrectAnswers = List.from(widget.card.answers);
-    incorrectAnswers
-        .removeAt(currentQuestionIndex); // Remove the correct answer
+    print("Question Index: ");
+    print(questionIndex);
+    String correctAnswer = widget.card.answers[questionIndex];
+
+    // Remove the correct answer
+    incorrectAnswers.remove(correctAnswer);
 
     // Shuffle the incorrect answers
     incorrectAnswers.shuffle();
 
     // Take three incorrect answers and add the correct answer
     shuffledOptions = incorrectAnswers.take(3).toList();
-    shuffledOptions.add(widget.card.answers[currentQuestionIndex]);
+    shuffledOptions.add(correctAnswer);
 
     // Shuffle these four options
     shuffledOptions.shuffle();
+    print("Correct Answer: ");
+    print(correctAnswer);
+    print("Shuffled Options: ");
+    print(shuffledOptions);
   }
 }
