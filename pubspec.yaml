@@ -72,6 +72,7 @@ flutter:
   assets:
      - assets/images/flashcard_logo.png
      - assets/images/google.png
+     - assets/images/student_holding_phone.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

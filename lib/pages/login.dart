@@ -99,6 +99,9 @@ class _LoginPageState extends State<LoginPage> {
                 child: Center(
                   child: Column(
                     children: [
+                      const Image(
+                          image: AssetImage(
+                              "assets/images/student_holding_phone.png")),
                       Container(
                         padding: const EdgeInsets.all(10.0),
                         decoration: const BoxDecoration(
@@ -110,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Color(0x6082AFC4),
+                              Color(0xFFADD8E6),
                               Color(0x50B4E7FF),
                             ],
                           ),
@@ -210,7 +213,7 @@ class _LoginPageState extends State<LoginPage> {
                                     //   ),
                                     // );
                                   },
-                                  child: Text("Forgot Password?"),
+                                  child: const Text("Forgot Password?"),
                                 ),
                               ),
                               const SizedBox(height: 30),
@@ -335,7 +338,7 @@ class _LoginPageState extends State<LoginPage> {
                                     onPressed: () {
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
-                                          builder: (context) => SignUp(),
+                                          builder: (context) => const SignUp(),
                                         ),
                                       );
                                     },

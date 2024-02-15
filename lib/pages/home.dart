@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
         if (snapshot.connectionState == ConnectionState.active) {
           final User? user = snapshot.data;
           if (user == null) {
-            return LoginPage();
+            return const LoginPage();
           }
           return ValueListenableBuilder(
             valueListenable: cardListNotifier,
@@ -59,11 +59,11 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 body: isLoading
-                    ? Center(
+                    ? const Center(
                         child: CircularProgressIndicator(),
                       )
                     : cards.isEmpty
-                        ? Center(
+                        ? const Center(
                             child: Text(
                               'No cards available',
                               style: TextStyle(
@@ -106,7 +106,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               Expanded(
                                 child: filteredCards.isEmpty
-                                    ? Center(
+                                    ? const Center(
                                         child: Text(
                                           'No matching cards found',
                                           style: TextStyle(
@@ -162,9 +162,8 @@ class _HomePageState extends State<HomePage> {
                                                           color: Colors.red,
                                                         ),
                                                         onPressed: () {
-                                                          _deleteCard(
-                                                              filteredCards[
-                                                                  index]);
+                                                          confirmDelete(
+                                                              context, index);
                                                         },
                                                       ),
                                                     ],
@@ -194,7 +193,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     _showAddCardDialog(context);
                   },
-                  child: Icon(Icons.add),
+                  child: const Icon(Icons.add),
                   backgroundColor: Colors.blue,
                 ),
               );
@@ -251,23 +250,23 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add New Card'),
+          title: const Text('Add New Card'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: titleController,
-                decoration: InputDecoration(labelText: 'Title'),
+                decoration: const InputDecoration(labelText: 'Title'),
               ),
               TextField(
                 controller: questionsController,
-                decoration:
-                    InputDecoration(labelText: 'Questions (comma-separated)'),
+                decoration: const InputDecoration(
+                    labelText: 'Questions (comma-separated)'),
               ),
               TextField(
                 controller: answersController,
-                decoration:
-                    InputDecoration(labelText: 'Answers (comma-separated)'),
+                decoration: const InputDecoration(
+                    labelText: 'Answers (comma-separated)'),
               ),
             ],
           ),
@@ -276,7 +275,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -284,7 +283,7 @@ class _HomePageState extends State<HomePage> {
                     answersController.text);
                 Navigator.pop(context);
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -319,14 +318,14 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Error'),
+          title: const Text('Error'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -346,23 +345,23 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Card'),
+          title: const Text('Edit Card'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: titleController,
-                decoration: InputDecoration(labelText: 'Title'),
+                decoration: const InputDecoration(labelText: 'Title'),
               ),
               TextField(
                 controller: questionsController,
-                decoration:
-                    InputDecoration(labelText: 'Questions (comma-separated)'),
+                decoration: const InputDecoration(
+                    labelText: 'Questions (comma-separated)'),
               ),
               TextField(
                 controller: answersController,
-                decoration:
-                    InputDecoration(labelText: 'Answers (comma-separated)'),
+                decoration: const InputDecoration(
+                    labelText: 'Answers (comma-separated)'),
               ),
             ],
           ),
@@ -371,7 +370,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -379,7 +378,7 @@ class _HomePageState extends State<HomePage> {
                     answersController.text);
                 Navigator.pop(context);
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );
@@ -417,5 +416,36 @@ class _HomePageState extends State<HomePage> {
 
     // Call the deleteFlashyCard method
     await firestoreService.deleteFlashyCard(card.cardId);
+  }
+
+  void confirmDelete(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to delete this card?',
+              style: TextStyle(
+                color: Colors.red,
+              )),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                // Call your function to delete the card here
+                _deleteCard(filteredCards[index]);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

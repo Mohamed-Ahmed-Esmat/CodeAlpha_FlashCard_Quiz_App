@@ -1,5 +1,4 @@
 import 'package:flash_card_quiz_app/pages/login.dart';
-import 'package:flash_card_quiz_app/pages/signup.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatelessWidget {
@@ -14,7 +13,7 @@ class LandingPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Welcome to Flashcards & Quizzes App',
+              'Welcome to Flashcards App',
               style: TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
