@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flash_card_quiz_app/classes/FlashyCard.dart';
 import 'package:flash_card_quiz_app/pages/score_list.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,9 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  String correctAnswerAudio = 'assets/sounds/correct.mp3';
+  String wrongAnswerAudio = 'assets/sounds/incorrect.mp3';
   int currentQuestionIndex = 0;
   int score = 0;
   int questionIndex = 0;
@@ -156,13 +160,18 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 
-  void checkAnswer(String selectedOption) {
+  Future<void> checkAnswer(String selectedOption) async {
     // Check if the selected option is correct
     if (selectedOption == widget.card.answers[questionIndex]) {
+      await _audioPlayer.play(AssetSource(correctAnswerAudio));
       setState(() {
         // Increment the score for a correct answer
         score++;
       });
+    }
+    // If the selected option is incorrect
+    else {
+      await _audioPlayer.play(AssetSource(wrongAnswerAudio));
     }
   }
 

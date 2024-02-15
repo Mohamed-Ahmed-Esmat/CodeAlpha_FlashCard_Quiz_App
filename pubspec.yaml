@@ -45,6 +45,7 @@ dependencies:
   supercharged: ^2.1.1
   google_sign_in: ^6.1.5
   provider: ^6.1.1
+  audioplayers: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +74,8 @@ flutter:
      - assets/images/flashcard_logo.png
      - assets/images/google.png
      - assets/images/student_holding_phone.png
+     - assets/sounds/correct.mp3
+     - assets/sounds/incorrect.mp3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
