@@ -15,7 +15,7 @@ class FirestoreService {
           FirebaseFirestore.instance.collection('flashycard');
       final DocumentReference docRef = await flashycardCollection.add({
         'questions': questions,
-        'quizScores': [0],
+        'quizScores': [],
         'answers': answers,
         'title': title,
       });

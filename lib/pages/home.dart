@@ -300,7 +300,7 @@ class _HomePageState extends State<HomePage> {
       // Validate that the number of answers corresponds to the number of questions
       if (questionList.length == answerList.length) {
         FlashyCard newCard = await firestoreService.addFlashyCard(
-            title, answerList, questionList);
+            title, questionList, answerList);
         setState(() {
           cards.add(newCard);
           filteredCards.add(newCard);
@@ -338,9 +338,9 @@ class _HomePageState extends State<HomePage> {
     TextEditingController titleController =
         TextEditingController(text: card.title);
     TextEditingController questionsController =
-        TextEditingController(text: card.questions.join(', '));
+        TextEditingController(text: card.questions.join(','));
     TextEditingController answersController =
-        TextEditingController(text: card.answers.join(', '));
+        TextEditingController(text: card.answers.join(','));
 
     showDialog(
       context: context,

@@ -16,6 +16,7 @@ class _QuizPageState extends State<QuizPage> {
   int currentQuestionIndex = 0;
   int score = 0;
   List<String> shuffledOptions = [];
+  List<String> shuffledOQuestions = [];
   bool quizFinished = false;
   String? selectedOption;
   final FirestoreService _firestoreService = FirestoreService();
@@ -24,13 +25,19 @@ class _QuizPageState extends State<QuizPage> {
   void initState() {
     super.initState();
     // Shuffle the questions for the quiz
-    widget.card.questions.shuffle();
+    shuffledOQuestions = widget.card.questions;
+    print("Original List: ");
+    print(widget.card.questions);
+    print("Shuffled List: ");
+    print(shuffledOQuestions);
     // Shuffle the options for the first question
     shuffleOptions();
   }
 
   @override
   Widget build(BuildContext context) {
+    int questionIndex =
+        widget.card.questions.indexOf(shuffledOQuestions[currentQuestionIndex]);
     return Scaffold(
       appBar: AppBar(
         title: Text('Quiz Page'),
@@ -68,7 +75,7 @@ class _QuizPageState extends State<QuizPage> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(widget.card.questions[currentQuestionIndex]),
+                child: Text(shuffledOQuestions[currentQuestionIndex]),
               ),
               const SizedBox(height: 16),
               // Display shuffled multiple-choice options
@@ -77,7 +84,7 @@ class _QuizPageState extends State<QuizPage> {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Card(
                     color: selectedOption == option
-                        ? (option == widget.card.answers[currentQuestionIndex]
+                        ? (option == widget.card.answers[questionIndex]
                             ? Colors.green
                             : Colors.red)
                         : Colors.blue,
@@ -96,7 +103,7 @@ class _QuizPageState extends State<QuizPage> {
                           checkAnswer(option);
                           // If it's the last question, display the score
                           if (currentQuestionIndex ==
-                              widget.card.questions.length - 1) {
+                              shuffledOQuestions.length - 1) {
                             // Store the score in the quizScores list of the FlashyCard class
                             widget.card.quizScores.add(score);
                             showScoreDialog();
@@ -117,7 +124,7 @@ class _QuizPageState extends State<QuizPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (currentQuestionIndex < widget.card.questions.length - 1)
+                  if (currentQuestionIndex < shuffledOQuestions.length - 1)
                     ElevatedButton(
                       onPressed: () {
                         if (!quizFinished) {
@@ -133,7 +140,7 @@ class _QuizPageState extends State<QuizPage> {
               const SizedBox(height: 16),
               if (quizFinished)
                 Text(
-                  'Score: $score / ${widget.card.questions.length}',
+                  'Score: $score / ${shuffledOQuestions.length}',
                   style: const TextStyle(fontSize: 16),
                 ),
             ],
@@ -155,7 +162,7 @@ class _QuizPageState extends State<QuizPage> {
 
   void nextQuestionOrDisplayScore() {
     setState(() {
-      if (currentQuestionIndex < widget.card.questions.length - 1) {
+      if (currentQuestionIndex < shuffledOQuestions.length - 1) {
         // Move to the next question
         currentQuestionIndex++;
         // Shuffle the options for the new question
@@ -179,8 +186,7 @@ class _QuizPageState extends State<QuizPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Quiz Finished'),
-          content:
-              Text('Your score is $score / ${widget.card.questions.length}'),
+          content: Text('Your score is $score / ${shuffledOQuestions.length}'),
           actions: <Widget>[
             TextButton(
               child: Text('OK'),
@@ -195,9 +201,19 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   void shuffleOptions() {
-    // Combine correct answer and other incorrect answers
-    List<String> allOptions = List.from(widget.card.answers);
-    allOptions.shuffle();
-    shuffledOptions = allOptions.take(4).toList();
+    // Get all incorrect answers
+    List<String> incorrectAnswers = List.from(widget.card.answers);
+    incorrectAnswers
+        .removeAt(currentQuestionIndex); // Remove the correct answer
+
+    // Shuffle the incorrect answers
+    incorrectAnswers.shuffle();
+
+    // Take three incorrect answers and add the correct answer
+    shuffledOptions = incorrectAnswers.take(3).toList();
+    shuffledOptions.add(widget.card.answers[currentQuestionIndex]);
+
+    // Shuffle these four options
+    shuffledOptions.shuffle();
   }
 }
