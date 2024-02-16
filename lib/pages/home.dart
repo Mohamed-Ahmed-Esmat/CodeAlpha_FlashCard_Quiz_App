@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/authentication_services.dart';
+import 'card_edit.dart';
 import 'login.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,9 +18,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Provider.of<CardListProvider>(context, listen: false).loadUserCards();
   }
@@ -41,6 +42,7 @@ class _HomePageState extends State<HomePage> {
                 appBar: AppBar(
                   title: Text('Welcome ${user.displayName!}'),
                   backgroundColor: Colors.blue,
+                  elevation: 0,
                   actions: [
                     IconButton(
                       icon: const Icon(Icons.exit_to_app),
@@ -200,109 +202,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showAddCardDialog(BuildContext context) {
-    TextEditingController titleController = TextEditingController();
-    TextEditingController questionsController = TextEditingController();
-    TextEditingController answersController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Add New Card'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-              ),
-              TextField(
-                controller: questionsController,
-                decoration: const InputDecoration(
-                    labelText: 'Questions (comma-separated)'),
-              ),
-              TextField(
-                controller: answersController,
-                decoration: const InputDecoration(
-                    labelText: 'Answers (comma-separated)'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Provider.of<CardListProvider>(context, listen: false)
-                    .addNewCard(titleController.text, questionsController.text,
-                        answersController.text);
-                Navigator.pop(context);
-              },
-              child: const Text('Add'),
-            ),
-          ],
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CardEditPage()),
     );
   }
 
   void _showEditCardDialog(BuildContext context, FlashyCard card) {
-    TextEditingController titleController =
-        TextEditingController(text: card.title);
-    TextEditingController questionsController =
-        TextEditingController(text: card.questions.join(','));
-    TextEditingController answersController =
-        TextEditingController(text: card.answers.join(','));
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit Card'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-              ),
-              TextField(
-                controller: questionsController,
-                decoration: const InputDecoration(
-                    labelText: 'Questions (comma-separated)'),
-              ),
-              TextField(
-                controller: answersController,
-                decoration: const InputDecoration(
-                    labelText: 'Answers (comma-separated)'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Provider.of<CardListProvider>(context, listen: false).editCard(
-                    card,
-                    titleController.text,
-                    questionsController.text,
-                    answersController.text);
-                Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CardEditPage(
+          title: card.title,
+          questions: card.questions,
+          answers: card.answers,
+        ),
+      ),
     );
   }
 
