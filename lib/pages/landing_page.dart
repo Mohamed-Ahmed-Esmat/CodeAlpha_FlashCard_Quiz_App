@@ -13,7 +13,7 @@ class LandingPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Welcome to Flashcards App',
+              'Welcome to FlashyCards App',
               style: TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
