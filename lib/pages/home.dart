@@ -17,6 +17,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Provider.of<CardListProvider>(context, listen: false).loadUserCards();
+  }
 
   @override
   Widget build(BuildContext context) {

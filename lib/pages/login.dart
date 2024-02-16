@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../services/authentication_services.dart';
 import '../widgets/loading.dart';
+import 'forget_password.dart';
 import 'home.dart';
 
 class LoginPage extends StatefulWidget {
@@ -206,12 +207,12 @@ class _LoginPageState extends State<LoginPage> {
                                     const EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
                                 child: TextButton(
                                   onPressed: () {
-                                    // Navigator.of(context).push(
-                                    //   MaterialPageRoute(
-                                    //     builder: (context) =>
-                                    //         ForgotPasswordScreen(), // Replace with your CourseInfoScreen widget
-                                    //   ),
-                                    // );
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ForgotPasswordScreen(), // Replace with your CourseInfoScreen widget
+                                      ),
+                                    );
                                   },
                                   child: const Text("Forgot Password?"),
                                 ),
