@@ -166,6 +166,12 @@ class AuthenticationService {
           await FirebaseAuth.instance.signInWithCredential(credential);
 
       final User? user = authResult.user;
+
+      if (user != null) {
+        // Store user information in Firestore
+        await storeUserInfo(user.uid, user.displayName ?? '', user.email ?? '');
+      }
+
       return user;
     } catch (error) {
       print('Error registering with Google: $error');

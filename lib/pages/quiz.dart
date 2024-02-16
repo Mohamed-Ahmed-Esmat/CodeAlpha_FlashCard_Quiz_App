@@ -163,11 +163,10 @@ class _QuizPageState extends State<QuizPage> {
   Future<void> checkAnswer(String selectedOption) async {
     // Check if the selected option is correct
     if (selectedOption == widget.card.answers[questionIndex]) {
+      score++;
       await _audioPlayer.play(AssetSource(correctAnswerAudio));
-      setState(() {
-        // Increment the score for a correct answer
-        score++;
-      });
+
+      // Increment the score for a correct answer
     }
     // If the selected option is incorrect
     else {

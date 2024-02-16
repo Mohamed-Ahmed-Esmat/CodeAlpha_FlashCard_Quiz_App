@@ -15,7 +15,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const Home());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (context) => CardListProvider()),
+  ], child: const Home()));
 }
 
 class Home extends StatelessWidget {
@@ -41,31 +43,24 @@ class AuthCheck extends StatefulWidget {
 class _AuthCheckState extends State<AuthCheck> {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => CardListProvider(),
-        )
-      ],
-      child: StreamBuilder(
-        stream: AuthenticationService().authStateChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            final User? user = snapshot.data;
-            if (user == null) {
-              return const LandingPage();
-            } else {
-              return const HomePage(); // Remove the null check operator here
-            }
+    return StreamBuilder(
+      stream: AuthenticationService().authStateChanges,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          final User? user = snapshot.data;
+          if (user == null) {
+            return const LandingPage();
           } else {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
+            return const HomePage(); // Remove the null check operator here
           }
-        },
-      ),
+        } else {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      },
     );
   }
 }
