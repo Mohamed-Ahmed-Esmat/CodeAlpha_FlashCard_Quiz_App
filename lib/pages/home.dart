@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                                       },
                                     ),
                                   ),
-                                  onSubmitted: (value) {
+                                  onChanged: (value) {
                                     cardListProvider.filterCards(value);
                                   },
                                 ),
