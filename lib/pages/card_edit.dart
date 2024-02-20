@@ -95,20 +95,38 @@ class _CardEditPageState extends State<CardEditPage> {
             itemBuilder: (context, index) {
               return Column(
                 children: [
-                  TextField(
-                    controller: questionControllers[index],
-                    decoration: InputDecoration(
-                      labelText: 'Question ${index + 1}',
-                      border: OutlineInputBorder(),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextField(
+                      controller: questionControllers[index],
+                      decoration: InputDecoration(
+                        labelText: 'Question ${index + 1}',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
                   SizedBox(height: 12.0), // Added SizedBox here
-                  TextField(
-                    controller: answerControllers[index],
-                    decoration: InputDecoration(
-                      labelText: 'Answer ${index + 1}',
-                      border: OutlineInputBorder(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+                    child: TextField(
+                      controller: answerControllers[index],
+                      decoration: InputDecoration(
+                        labelText: 'Answer ${index + 1}',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        questionControllers.removeAt(index);
+                        answerControllers.removeAt(index);
+                      });
+                    },
                   ),
                   const Divider(
                     thickness: 1.0, // You can adjust thickness here
@@ -117,14 +135,18 @@ class _CardEditPageState extends State<CardEditPage> {
               );
             },
           ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                questionControllers.add(TextEditingController());
-                answerControllers.add(TextEditingController());
-              });
-            },
-            child: Text('Add Question and Answer'),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  questionControllers.add(TextEditingController());
+                  answerControllers.add(TextEditingController());
+                });
+              },
+              child: Icon(Icons.add),
+              backgroundColor: Colors.blue,
+            ),
           ),
         ],
       ),

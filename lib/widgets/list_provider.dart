@@ -7,15 +7,19 @@ class CardListProvider extends ChangeNotifier {
   final FirestoreService firestoreService = FirestoreService();
   List<FlashyCard> cards = [];
   List<FlashyCard> filteredCards = [];
+  bool isLoading = false; // Add this line
 
   CardListProvider() {
     loadUserCards();
   }
 
   void loadUserCards() async {
+    isLoading = true; // Set isLoading to true at the start
+    notifyListeners();
     List<FlashyCard> userCards = await firestoreService.getFlashyCardsUser();
     cards = userCards;
     filteredCards = List.from(cards);
+    isLoading = false; // Set isLoading to false at the end
     notifyListeners();
   }
 

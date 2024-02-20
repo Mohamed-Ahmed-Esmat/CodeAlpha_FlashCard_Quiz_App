@@ -52,134 +52,141 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                body: cardListProvider.cards.isEmpty
+                body: cardListProvider.isLoading
                     ? const Center(
-                        child: Text(
-                          'No cards available',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: CircularProgressIndicator(),
                       )
-                    : Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0),
-                                child: TextField(
-                                  controller: _searchController,
-                                  decoration: InputDecoration(
-                                    hintText: 'Search',
-                                    border: InputBorder.none,
-                                    suffixIcon: IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        _searchController.clear();
-                                        cardListProvider.filterCards('');
-                                      },
-                                    ),
-                                  ),
-                                  onChanged: (value) {
-                                    cardListProvider.filterCards(value);
-                                  },
-                                ),
+                    : cardListProvider.cards.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'No cards available',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: cardListProvider.filteredCards.isEmpty
-                                ? const Center(
-                                    child: Text(
-                                      'No matching cards found',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  )
-                                : Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: ListView.builder(
-                                      itemCount:
-                                          cardListProvider.filteredCards.length,
-                                      itemBuilder: (context, index) {
-                                        return GestureDetector(
-                                          child: Card(
-                                            elevation: 10,
-                                            color: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    cardListProvider
-                                                        .filteredCards[index]
-                                                        .title,
-                                                    style: const TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons.edit,
-                                                      color: Colors.blue,
-                                                    ),
-                                                    onPressed: () {
-                                                      _showEditCardDialog(
-                                                          context,
-                                                          cardListProvider
-                                                                  .filteredCards[
-                                                              index]);
-                                                    },
-                                                  ),
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons.delete,
-                                                      color: Colors.red,
-                                                    ),
-                                                    onPressed: () {
-                                                      confirmDelete(
-                                                          context, index);
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => CardPage(
-                                                  card: cardListProvider
-                                                      .filteredCards[index],
-                                                ),
-                                              ),
-                                            );
+                          )
+                        : Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
+                                    child: TextField(
+                                      controller: _searchController,
+                                      decoration: InputDecoration(
+                                        hintText: 'Search',
+                                        border: InputBorder.none,
+                                        suffixIcon: IconButton(
+                                          icon: const Icon(Icons.clear),
+                                          onPressed: () {
+                                            _searchController.clear();
+                                            cardListProvider.filterCards('');
                                           },
-                                        );
+                                        ),
+                                      ),
+                                      onChanged: (value) {
+                                        cardListProvider.filterCards(value);
                                       },
                                     ),
                                   ),
+                                ),
+                              ),
+                              Expanded(
+                                child: cardListProvider.filteredCards.isEmpty
+                                    ? const Center(
+                                        child: Text(
+                                          'No matching cards found',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      )
+                                    : Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ListView.builder(
+                                          itemCount: cardListProvider
+                                              .filteredCards.length,
+                                          itemBuilder: (context, index) {
+                                            return GestureDetector(
+                                              child: Card(
+                                                elevation: 10,
+                                                color: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.0),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        cardListProvider
+                                                            .filteredCards[
+                                                                index]
+                                                            .title,
+                                                        style: const TextStyle(
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      IconButton(
+                                                        icon: const Icon(
+                                                          Icons.edit,
+                                                          color: Colors.blue,
+                                                        ),
+                                                        onPressed: () {
+                                                          _showEditCardDialog(
+                                                              context,
+                                                              cardListProvider
+                                                                      .filteredCards[
+                                                                  index]);
+                                                        },
+                                                      ),
+                                                      IconButton(
+                                                        icon: const Icon(
+                                                          Icons.delete,
+                                                          color: Colors.red,
+                                                        ),
+                                                        onPressed: () {
+                                                          confirmDelete(
+                                                              context, index);
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CardPage(
+                                                      card: cardListProvider
+                                                          .filteredCards[index],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
                 floatingActionButton: FloatingActionButton(
                   onPressed: () {
                     _showAddCardDialog(context);
