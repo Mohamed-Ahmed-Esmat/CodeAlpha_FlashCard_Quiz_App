@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
-
+  final User? user = AuthenticationService().currentUser;
   @override
   void initState() {
     super.initState();
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
       stream: AuthenticationService().authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
-          final User? user = snapshot.data;
+          User? user = snapshot.data;
           if (user == null) {
             return const LoginPage();
           }
@@ -201,11 +201,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showAddCardDialog(BuildContext context) {
-    Navigator.push(
+  void _showAddCardDialog(BuildContext context) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CardEditPage()),
     );
+
+    // If the result is 'refresh', refresh the page
+    if (result == 'refresh') {
+      Provider.of<CardListProvider>(context, listen: false).loadUserCards();
+    }
   }
 
   void _showEditCardDialog(BuildContext context, FlashyCard card) {
