@@ -6,6 +6,7 @@ import '../services/firestore_services.dart';
 
 class CardEditPage extends StatefulWidget {
   final String? title;
+  final String? cardId;
   final List<String>? questions;
   final List<String>? answers;
 
@@ -14,6 +15,7 @@ class CardEditPage extends StatefulWidget {
     this.title,
     this.questions,
     this.answers,
+    this.cardId,
   });
 
   @override
@@ -51,11 +53,17 @@ class _CardEditPageState extends State<CardEditPage> {
     List<String> answers =
         answerControllers.map((controller) => controller.text).toList();
 
-    // Save the new card to Firestore
-    await _firestoreService.addFlashyCard(
-        titleController.text, questions, answers);
+    if (widget.cardId == null) {
+      // Save the new card to Firestore
+      await _firestoreService.addFlashyCard(
+          titleController.text, questions, answers);
+    } else {
+      // Edit the existing card in Firestore
+      await _firestoreService.editFlashyCard(
+          widget.cardId!, titleController.text, questions, answers);
+    }
 
-    // After saving the card, navigate back to the previous page
+    // After saving or editing the card, navigate back to the previous page
     Navigator.pop(context, 'refresh');
   }
 

@@ -213,17 +213,23 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _showEditCardDialog(BuildContext context, FlashyCard card) {
-    Navigator.push(
+  void _showEditCardDialog(BuildContext context, FlashyCard card) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => CardEditPage(
+          cardId: card.cardId,
           title: card.title,
           questions: card.questions,
           answers: card.answers,
         ),
       ),
     );
+
+    // If the result is 'refresh', refresh the page
+    if (result == 'refresh') {
+      Provider.of<CardListProvider>(context, listen: false).loadUserCards();
+    }
   }
 
   void confirmDelete(BuildContext context, int index) {
