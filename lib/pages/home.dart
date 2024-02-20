@@ -43,6 +43,7 @@ class _HomePageState extends State<HomePage> {
                   title: Text('Welcome ${user.displayName!}'),
                   backgroundColor: Colors.blue,
                   elevation: 0,
+                  automaticallyImplyLeading: false,
                   actions: [
                     IconButton(
                       icon: const Icon(Icons.exit_to_app),
