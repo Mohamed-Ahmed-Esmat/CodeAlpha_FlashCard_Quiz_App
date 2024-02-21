@@ -53,18 +53,43 @@ class _CardEditPageState extends State<CardEditPage> {
     List<String> answers =
         answerControllers.map((controller) => controller.text).toList();
 
-    if (widget.cardId == null) {
-      // Save the new card to Firestore
-      await _firestoreService.addFlashyCard(
-          titleController.text, questions, answers);
-    } else {
-      // Edit the existing card in Firestore
-      await _firestoreService.editFlashyCard(
-          widget.cardId!, titleController.text, questions, answers);
-    }
+    // Check if the title, questions, and answers are not empty
+    if (titleController.text.isNotEmpty &&
+        questions.isNotEmpty &&
+        answers.isNotEmpty &&
+        questions[0].isNotEmpty &&
+        answers[0].isNotEmpty) {
+      if (widget.cardId == null) {
+        // Save the new card to Firestore
+        await _firestoreService.addFlashyCard(
+            titleController.text, questions, answers);
+      } else {
+        // Edit the existing card in Firestore
+        await _firestoreService.editFlashyCard(
+            widget.cardId!, titleController.text, questions, answers);
+      }
 
-    // After saving or editing the card, navigate back to the previous page
-    Navigator.pop(context, 'refresh');
+      // After saving or editing the card, navigate back to the previous page
+      Navigator.pop(context, 'refresh');
+    } else {
+      // Show a dialog if the title, questions, or answers are empty
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text(
+              'Please enter a title and at least one question and answer.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
