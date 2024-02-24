@@ -69,8 +69,8 @@ class _CardEditPageState extends State<CardEditPage> {
             widget.cardId!, titleController.text, questions, answers);
       }
 
-      // After saving or editing the card, navigate back to the previous page
-      Navigator.pop(context, 'refresh');
+      // After saving or editing the card, navigate back to the CardListPage
+      Navigator.pop(context);
     } else {
       // Show a dialog if the title, questions, or answers are empty
       showDialog(
