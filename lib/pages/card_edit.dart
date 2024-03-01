@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:csv/csv.dart';
+import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -97,31 +100,76 @@ class _CardEditPageState extends State<CardEditPage> {
   Future<void> pickAndUploadFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['csv'],
+      allowedExtensions: ['csv', 'xlsx'],
     );
 
     if (result != null) {
       String filePath = result.files.single.path!;
       // Process the file using filePath
-      List<List<dynamic>> csvData = await _readCsvFile(filePath);
+      Map<String, List<String>> fileData = await _readFile(filePath);
 
-      if (csvData.isNotEmpty) {
-        List<String> firstColumnData =
-            csvData.map((row) => row[0].toString()).toList();
-        List<String> secondColumnData =
-            csvData.map((row) => row[1].toString()).toList();
+      if (fileData['questions']!.isNotEmpty &&
+          fileData['answers']!.isNotEmpty) {
+        // Clear the existing controllers
+        questionControllers.clear();
+        answerControllers.clear();
 
-        // Now you have the data from the first two columns in separate lists
-        print('First Column Data: $firstColumnData');
-        print('Second Column Data: $secondColumnData');
+        // Update the controllers with the new data
+        for (var i = 0; i < fileData['questions']!.length; i++) {
+          questionControllers
+              .add(TextEditingController(text: fileData['questions']![i]));
+          answerControllers
+              .add(TextEditingController(text: fileData['answers']![i]));
+        }
+
+        // Update the UI
+        setState(() {});
       }
     }
   }
 
-  Future<List<List<dynamic>>> _readCsvFile(String filePath) async {
-    String fileContent = await File(filePath).readAsString();
-    List<List<dynamic>> csvTable = CsvToListConverter().convert(fileContent);
-    return csvTable;
+  Future<Map<String, List<String>>> _readFile(String filePath) async {
+    List<String> questions = [];
+    List<String> answers = [];
+
+    if (filePath.endsWith('.csv')) {
+      // Read CSV file
+      String fileContent = await File(filePath).readAsString();
+      List<List<dynamic>> csvData = CsvToListConverter().convert(fileContent);
+
+      for (var row in csvData) {
+        questions.add(row[0].toString());
+        answers.add(row[1].toString());
+      }
+    } else if (filePath.endsWith('.xlsx')) {
+      // Read XLSX file
+      var bytes = File(filePath).readAsBytesSync();
+      var excel = Excel.decodeBytes(bytes);
+      var cellCounter = 0;
+      var rowCounter = 0;
+      for (var table in excel.tables.keys) {
+        for (var row in excel.tables[table]!.rows) {
+          if (rowCounter == 0) {
+            rowCounter++;
+            continue;
+          }
+          for (var cell in row) {
+            final cellValue = cell?.value;
+            if (cellCounter % 2 == 0) {
+              questions.add(cellValue.toString());
+              print("Question: " + cellValue.toString());
+              cellCounter++;
+            } else {
+              print("Answer: " + cellValue.toString());
+              answers.add(cellValue.toString());
+              cellCounter = 0;
+            }
+          }
+        }
+      }
+    }
+
+    return {'questions': questions, 'answers': answers};
   }
 
   @override
