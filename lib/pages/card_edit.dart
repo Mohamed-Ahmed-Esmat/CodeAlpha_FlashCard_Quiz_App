@@ -75,7 +75,7 @@ class _CardEditPageState extends State<CardEditPage> {
       }
 
       // After saving or editing the card, navigate back to the CardListPage
-      Navigator.pop(context);
+      Navigator.pop(context, 'refresh');
     } else {
       // Show a dialog if the title, questions, or answers are empty
       showDialog(
@@ -137,9 +137,23 @@ class _CardEditPageState extends State<CardEditPage> {
       String fileContent = await File(filePath).readAsString();
       List<List<dynamic>> csvData = CsvToListConverter().convert(fileContent);
 
+      var cellCounter = 0;
+      var rowCounter = 0;
       for (var row in csvData) {
-        questions.add(row[0].toString());
-        answers.add(row[1].toString());
+        if (rowCounter == 0) {
+          rowCounter++;
+          continue;
+        }
+        for (var cell in row) {
+          final cellValue = cell.toString();
+          if (cellCounter % 2 == 0) {
+            questions.add(cellValue);
+            cellCounter++;
+          } else {
+            answers.add(cellValue);
+            cellCounter = 0;
+          }
+        }
       }
     } else if (filePath.endsWith('.xlsx')) {
       // Read XLSX file
@@ -157,10 +171,8 @@ class _CardEditPageState extends State<CardEditPage> {
             final cellValue = cell?.value;
             if (cellCounter % 2 == 0) {
               questions.add(cellValue.toString());
-              print("Question: " + cellValue.toString());
               cellCounter++;
             } else {
-              print("Answer: " + cellValue.toString());
               answers.add(cellValue.toString());
               cellCounter = 0;
             }
