@@ -1,3 +1,5 @@
+import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -92,11 +94,47 @@ class _CardEditPageState extends State<CardEditPage> {
     }
   }
 
+  Future<void> pickAndUploadFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+
+    if (result != null) {
+      String filePath = result.files.single.path!;
+      // Process the file using filePath
+      List<List<dynamic>> csvData = await _readCsvFile(filePath);
+
+      if (csvData.isNotEmpty) {
+        List<String> firstColumnData =
+            csvData.map((row) => row[0].toString()).toList();
+        List<String> secondColumnData =
+            csvData.map((row) => row[1].toString()).toList();
+
+        // Now you have the data from the first two columns in separate lists
+        print('First Column Data: $firstColumnData');
+        print('Second Column Data: $secondColumnData');
+      }
+    }
+  }
+
+  Future<List<List<dynamic>>> _readCsvFile(String filePath) async {
+    String fileContent = await File(filePath).readAsString();
+    List<List<dynamic>> csvTable = CsvToListConverter().convert(fileContent);
+    return csvTable;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title == null ? 'Add Card' : 'Edit Card'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.upload_file),
+            onPressed: pickAndUploadFile,
+          ),
+        ],
       ),
       body: ListView(
         children: <Widget>[
