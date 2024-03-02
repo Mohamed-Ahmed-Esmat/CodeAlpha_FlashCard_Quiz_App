@@ -45,14 +45,6 @@ class _CardsListState extends State<CardsList> {
                   backgroundColor: Colors.blue,
                   elevation: 0,
                   automaticallyImplyLeading: false,
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.exit_to_app),
-                      onPressed: () async {
-                        await AuthenticationService().signOut();
-                      },
-                    ),
-                  ],
                 ),
                 body: cardListProvider.isLoading
                     ? const Center(

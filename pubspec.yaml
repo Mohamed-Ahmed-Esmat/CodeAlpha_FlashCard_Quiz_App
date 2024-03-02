@@ -50,6 +50,7 @@ dependencies:
   file_picker: ^6.1.1
   csv: ^6.0.0
   excel: ^4.0.2
+  line_awesome_flutter: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -84,6 +85,7 @@ flutter:
      - assets/images/flashcard_logo.png
      - assets/images/google.png
      - assets/images/student_holding_phone.png
+     - assets/images/profile_default.png
      - assets/sounds/correct.mp3
      - assets/sounds/incorrect.mp3
 

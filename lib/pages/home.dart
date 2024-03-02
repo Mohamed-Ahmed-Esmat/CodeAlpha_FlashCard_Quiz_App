@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flash_card_quiz_app/pages/card_edit.dart';
 import 'package:flash_card_quiz_app/pages/card_list.dart';
+import 'package:flash_card_quiz_app/pages/profile.dart';
 import 'package:flash_card_quiz_app/widgets/list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,10 +22,7 @@ class _HomePageState extends State<HomePage> {
   int _activeIndex = 0;
 
   // Define your pages here
-  final List<Widget> _pages = [
-    CardsList(),
-    CardEditPage(),
-  ];
+  final List<Widget> _pages = [CardsList(), CardEditPage(), ProfileScreen()];
 
   @override
   void initState() {
