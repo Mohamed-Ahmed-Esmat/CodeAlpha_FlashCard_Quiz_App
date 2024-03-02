@@ -43,22 +43,6 @@ class ProfileScreen extends StatelessWidget {
                             image: AssetImage(
                                 'assets/images/profile_default.png'))),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: Colors.blue.withOpacity(0.1)),
-                      child: const Icon(
-                        LineAwesomeIcons.alternate_pencil,
-                        color: Colors.black,
-                        size: 20,
-                      ),
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -88,9 +72,35 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 10),
               ProfileMenuWidget(
-                  title: 'Information',
-                  icon: LineAwesomeIcons.info,
-                  onPress: () {}),
+                title: 'Information',
+                icon: LineAwesomeIcons.info,
+                onPress: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('User Information'),
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text('Name: ${user?.displayName}'),
+                            Text('Email: ${user?.email}'),
+                            // Add more user information here
+                          ],
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('Close'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
               ProfileMenuWidget(
                   title: 'Logout',
                   icon: LineAwesomeIcons.alternate_sign_out,

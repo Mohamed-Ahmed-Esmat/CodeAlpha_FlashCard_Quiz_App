@@ -9,7 +9,7 @@ class UpdateProfileScreen extends StatelessWidget {
     // Dummy values for undefined vars
     const String tEditProfile = 'Edit Profile';
     const double tDefaultSize = 16;
-    const String tProfileImage = 'assets/profile_default.png';
+    const String tProfileImage = 'assets/images/profile_default.png';
     const Color tPrimaryColor = Colors.cyan;
     const double tFormHeight = 20.0;
     const String tFullName = 'Full Name';
@@ -55,7 +55,7 @@ class UpdateProfileScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(100),
                         color: tPrimaryColor,
                       ),
-                      child: const Icon(LineAwesomeIcons.camera,
+                      child: const Icon(LineAwesomeIcons.alternate_pencil,
                           color: Colors.black, size: 20),
                     ),
                   ),
